@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useContent } from '@/context/ContentContext';
@@ -33,11 +33,12 @@ const FloatingSidebar = () => {
 
   // Logic for new notice red dot
   useEffect(() => {
-    if (content?.notices && content.notices.length > 0) {
+    const noticesArray = content?.notices?.notices || [];
+    if (noticesArray.length > 0) {
       const lastViewedId = localStorage.getItem('lastViewedNoticeId');
       
       // Sort notices by date descending to find the latest
-      const sortedNotices = [...content.notices].sort((a, b) => 
+      const sortedNotices = [...noticesArray].sort((a, b) => 
         new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       const latestNotice = sortedNotices[0];
@@ -52,8 +53,8 @@ const FloatingSidebar = () => {
     }
 
     // Clear notification if we are on the notices page
-    if (pathname === '/notices' && content?.notices && content.notices.length > 0) {
-      const sortedNotices = [...content.notices].sort((a, b) => 
+    if (pathname === '/notices' && noticesArray.length > 0) {
+      const sortedNotices = [...noticesArray].sort((a, b) => 
         new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       const latestNotice = sortedNotices[0];

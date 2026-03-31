@@ -1,15 +1,16 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
 import { Menu, X, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const { content } = useContent();
   const [isOpen, setIsOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
@@ -50,16 +51,20 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`flex justify-between transition-all duration-500 ${scrolled ? 'h-16' : 'h-24'}`}>
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3 group">
-              <div className="h-10 w-28 relative group-hover:scale-105 transition-transform duration-500">
-                <img 
+            <Link href="/" className="flex items-center space-x-4 group">
+              <div className="h-12 w-12 relative group-hover:scale-110 transition-transform duration-500">
+                <Image 
                   src={logoUrl || "/images/logo.png"} 
                   alt="JMC Logo" 
-                  className="h-full w-full object-contain"
+                  fill
+                  className="object-contain"
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <span className="text-xl font-bold tracking-tight text-white font-display group-hover:text-amber-400 transition-colors duration-500">{clubName}</span>
+              <div className="flex flex-col">
+                <span className="text-lg font-display font-bold tracking-tight text-white group-hover:text-amber-400 transition-colors duration-500">{clubName}</span>
+                <span className="text-[8px] uppercase tracking-[0.4em] text-zinc-500 font-bold">{content?.site?.established || 'EST. 2015'}</span>
+              </div>
             </Link>
           </div>
 
@@ -94,7 +99,7 @@ const Navbar = () => {
                 </motion.div>
                 <motion.button
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => supabase.auth.signOut()}
+                  onClick={signOut}
                   className="text-zinc-400 hover:text-red-400 transition-colors"
                 >
                   <LogOut className="h-5 w-5" />
@@ -166,7 +171,7 @@ const Navbar = () => {
                   </Link>
                   <button
                     onClick={() => {
-                      supabase.auth.signOut();
+                      signOut();
                       setIsOpen(false);
                     }}
                     className="block w-full text-left px-3 py-3 rounded-xl text-base font-medium text-red-400 hover:bg-white/5"

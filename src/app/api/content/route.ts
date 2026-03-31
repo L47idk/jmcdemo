@@ -6,8 +6,12 @@ const CONTENT_FILE = path.join(process.cwd(), 'src/data/site-content.json');
 
 export async function GET() {
   try {
+    const stats = await fs.stat(CONTENT_FILE);
     const data = await fs.readFile(CONTENT_FILE, 'utf-8');
-    return NextResponse.json(JSON.parse(data));
+    return NextResponse.json({
+      data: JSON.parse(data),
+      updatedAt: stats.mtime.toISOString()
+    });
   } catch (error) {
     console.error('Error reading content file:', error);
     return NextResponse.json({ error: 'Failed to read content' }, { status: 500 });

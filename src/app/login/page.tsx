@@ -1,6 +1,6 @@
 "use client";
 import React, { Suspense } from 'react';
-import Auth from "@/pages/Auth";
+import Auth from "@/views/Auth";
 
 export default function Page() {
   return (

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 interface SplashScreenProps {
   isLoaded: boolean;
@@ -64,10 +65,12 @@ const SplashScreen = ({ isLoaded, logoUrl, onFinish }: SplashScreenProps) => {
               className="mb-12 relative"
             >
               <div className="w-32 h-32 relative">
-                <img 
+                <Image 
                   src={logoUrl || "/images/logo.png"} 
                   alt="JMC Logo" 
-                  className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                  fill
+                  className="object-contain filter drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                  referrerPolicy="no-referrer"
                 />
               </div>
               

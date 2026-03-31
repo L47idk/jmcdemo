@@ -2,7 +2,8 @@
 import React from 'react';
 import { useContent } from '../context/ContentContext';
 import { useAuth } from '../context/AuthContext';
-import { motion, AnimatePresence } from 'motion/react';
+import { useToast } from '../context/ToastContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import { User, Shield, Star, Briefcase, Users, Award, Upload, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import ScrollReveal from '../components/ScrollReveal';
@@ -12,6 +13,7 @@ import ScrollReveal from '../components/ScrollReveal';
 const Flashcard = ({ role, name, imageUrl, icon: Icon = User, onUpload, isAdmin }: any) => {
   const [uploading, setUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { showToast } = useToast();
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isAdmin) return;
@@ -34,9 +36,10 @@ const Flashcard = ({ role, name, imageUrl, icon: Icon = User, onUpload, isAdmin 
       if (onUpload) {
         await onUpload(data.url);
       }
+      showToast('Image updated successfully', 'success');
     } catch (err) {
       console.error('Upload error:', err);
-      alert('Failed to upload image');
+      showToast('Failed to upload image', 'error');
     } finally {
       setUploading(false);
     }
@@ -124,8 +127,9 @@ const SubHeading = ({ children }: any) => (
 );
 
 const Panel = () => {
-  const { content, loading } = useContent();
+  const { content, loading, updateNestedField } = useContent();
   const { isAdmin } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = React.useState('current');
 
   if (loading) return null; // Root layout handles splash screen
@@ -137,15 +141,8 @@ const Panel = () => {
 
   const handleMemberUpdate = async (jsonPath: string, value: any) => {
     try {
-      const res = await fetch('/api/content/update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jsonPath, value }),
-      });
-      if (res.ok) {
-        // Refresh page to show new content
-        window.location.reload();
-      }
+      await updateNestedField(jsonPath, value);
+      // No need to reload, context update will trigger re-render
     } catch (err) {
       console.error('Update error:', err);
     }
@@ -157,7 +154,7 @@ const Panel = () => {
         
         {/* --- MODERATORS SECTION --- */}
         <section>
-          <SectionHeading>Moderators</SectionHeading>
+          <SectionHeading>{panel.moderatorsTitle || "Moderators"}</SectionHeading>
           <motion.div 
             initial="hidden"
             whileInView="visible"
@@ -195,7 +192,7 @@ const Panel = () => {
 
         {/* --- EXECUTIVE COMMITTEE SECTION --- */}
         <section className="space-y-20">
-          <SectionHeading subtitle="The Core Leadership">Executive Committee</SectionHeading>
+          <SectionHeading subtitle={panel.executiveSubtitle || "The Core Leadership"}>{panel.executiveTitle || "Executive Committee"}</SectionHeading>
           
           {/* Tabs */}
           <ScrollReveal direction="up" distance={20} className="flex justify-center gap-4 mb-16">
@@ -322,7 +319,7 @@ const Panel = () => {
 
         {/* --- DEPARTMENT LEADERSHIP SECTION --- */}
         <section className="space-y-12">
-          <SectionHeading>Department Leadership</SectionHeading>
+          <SectionHeading>{panel.departmentsTitle || "Department Leadership"}</SectionHeading>
           
           <ScrollReveal direction="up" distance={40} className="glass-card p-1 border-amber-500/20 overflow-hidden">
             <div className="bg-amber-500/10 p-6 flex items-center gap-4 border-b border-amber-500/20">
@@ -339,7 +336,7 @@ const Panel = () => {
               >
                 <Users className="w-6 h-6 text-amber-500" />
               </motion.div>
-              <h3 className="text-xl font-bold text-white font-display uppercase tracking-widest">Department Heads</h3>
+              <h3 className="text-xl font-bold text-white font-display uppercase tracking-widest">{panel.departmentsSubtitle || "Department Heads"}</h3>
             </div>
             
             <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-black/40">
@@ -370,6 +367,9 @@ const Panel = () => {
                               if (res.ok) {
                                 const data = await res.json();
                                 handleMemberUpdate(`panel.executive.${activeTab}.departments.${i}.imageUrl`, data.url);
+                                showToast('Image updated', 'success');
+                              } else {
+                                showToast('Upload failed', 'error');
                               }
                             };
                             input.click();
@@ -390,7 +390,7 @@ const Panel = () => {
 
         {/* --- SECRETARY POSITIONS SECTION --- */}
         <section className="space-y-12">
-          <SectionHeading>Secretary Positions</SectionHeading>
+          <SectionHeading>{panel.secretariesTitle || "Secretary Positions"}</SectionHeading>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[
@@ -427,6 +427,9 @@ const Panel = () => {
                                 if (res.ok) {
                                   const data = await res.json();
                                   handleMemberUpdate(`panel.executive.${activeTab}.secretaries.${category.id}.${i}.imageUrl`, data.url);
+                                  showToast('Image updated', 'success');
+                                } else {
+                                  showToast('Upload failed', 'error');
                                 }
                               };
                               input.click();

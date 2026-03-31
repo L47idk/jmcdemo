@@ -1,7 +1,8 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import { useContent } from '../context/ContentContext';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Calculator, Trophy, Lightbulb, Heart, Target, Rocket, Zap, Globe } from 'lucide-react';
 import ScrollReveal from '../components/ScrollReveal';
 
@@ -34,39 +35,43 @@ const About = () => {
     mission: ""
   };
 
-  const stats = [
+  const stats = aboutContent.stats || [
     { number: "10+", label: "Years of Excellence" },
     { number: "100+", label: "Workshops Conducted" },
     { number: "6", label: "National Festivals" },
     { number: "20k+", label: "Students Impacted" },
   ];
 
-  const objectives = [
+  const objectives = (aboutContent.objectives || [
     {
       title: "Problem Solving",
       description: "Develop your math skills through challenging problems and real-world applications. Build critical thinking and problem-solving abilities.",
-      icon: <Calculator className="w-8 h-8" />,
+      icon: "Calculator",
       color: "text-purple-400"
     },
     {
       title: "Olympiad Preparation",
       description: "Preparing for math Olympiads helps you think outside the box and tackle advanced problems with confidence.",
-      icon: <Trophy className="w-8 h-8" />,
+      icon: "Trophy",
       color: "text-amber-400"
     },
     {
       title: "Creativity",
       description: "Learn how creativity fuels problem-solving. Apply mathematical thinking in innovative ways.",
-      icon: <Lightbulb className="w-8 h-8" />,
+      icon: "Lightbulb",
       color: "text-emerald-400"
     },
     {
       title: "Love for Math",
       description: "Embrace your passion for mathematics and explore its beauty in a supportive environment.",
-      icon: <Heart className="w-8 h-8" />,
+      icon: "Heart",
       color: "text-rose-400"
     }
-  ];
+  ]).map((obj: any) => {
+    const IconMap: any = { Calculator, Trophy, Lightbulb, Heart };
+    const Icon = IconMap[obj.icon] || Calculator;
+    return { ...obj, icon: <Icon className="w-8 h-8" /> };
+  });
 
   return (
     <div className="min-h-screen relative py-24 overflow-hidden">
@@ -80,7 +85,7 @@ const About = () => {
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           >
             <h2 className="text-5xl md:text-8xl font-bold text-white mb-16 font-display tracking-tighter leading-none">
-              {aboutContent.title.split(' ').map((word: string, i: number) => (
+              {(aboutContent.title || "What is JMC?").split(' ').map((word: string, i: number) => (
                 <span key={i} className={i === 2 ? "gold-text mr-6" : "mr-6"}>{word}</span>
               ))}
             </h2>
@@ -91,7 +96,7 @@ const About = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
+            {stats.map((stat: any, i: number) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 40 }}
@@ -122,15 +127,21 @@ const About = () => {
             className="mb-24"
           >
             <div className="inline-block px-3 py-1 mb-6 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-bold tracking-[0.3em] uppercase border border-amber-500/20">
-              Our Vision
+              {aboutContent.visionTagline || "Our Vision"}
             </div>
             <h2 className="text-5xl md:text-8xl font-bold text-white font-display tracking-tighter leading-none">
-              Our <span className="gold-text">Objectives</span>
+              {aboutContent.objectivesTitle?.split(' ').map((word: string, i: number, arr: string[]) => (
+                <span key={i} className={i === arr.length - 1 ? "gold-text" : "mr-4"}>
+                  {word}
+                </span>
+              )) || (
+                <>Our <span className="gold-text">Objectives</span></>
+              )}
             </h2>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-            {objectives.map((obj, i) => (
+            {objectives.map((obj: any, i: number) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 50 }}
@@ -163,11 +174,17 @@ const About = () => {
         <section className="py-24 relative overflow-hidden">
           <div className="text-center mb-20">
             <ScrollReveal direction="up" distance={20} className="inline-block px-3 py-1 mb-4 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-bold tracking-[0.3em] uppercase border border-indigo-500/20">
-              The Path Forward
+              {aboutContent.pathTagline || "The Path Forward"}
             </ScrollReveal>
             <ScrollReveal direction="up" distance={30} delay={0.1}>
               <h2 className="text-6xl md:text-8xl font-bold tracking-tighter text-white font-display">
-                Vision in <span className="text-indigo-500">4 Steps</span>
+                {aboutContent.visionStepsTitle?.split(' ').map((word: string, i: number, arr: string[]) => (
+                  <span key={i} className={i === arr.length - 1 ? "text-indigo-500" : "mr-4"}>
+                    {word}
+                  </span>
+                )) || (
+                  <>Vision in <span className="text-indigo-500">4 Steps</span></>
+                )}
               </h2>
             </ScrollReveal>
           </div>
@@ -176,31 +193,35 @@ const About = () => {
             {/* Connecting Line (Desktop) */}
             <div className="hidden lg:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent -translate-y-1/2 z-0" />
             
-            {[
-              { title: "Discovery", desc: "Identifying mathematical potential in every student.", icon: Target, color: "bg-blue-500" },
-              { title: "Nurturing", desc: "Providing the resources and mentorship to grow.", icon: Zap, color: "bg-indigo-500" },
-              { title: "Excellence", desc: "Achieving mastery through practice and competition.", icon: Rocket, color: "bg-purple-500" },
-              { title: "Impact", desc: "Applying math to solve real-world global problems.", icon: Globe, color: "bg-pink-500" }
-            ].map((step, i) => (
-              <ScrollReveal 
-                key={i} 
-                direction="up" 
-                distance={40} 
-                delay={i * 0.2}
-                className="relative z-10"
-              >
-                <div className="glass-card p-10 border-white/5 hover:border-indigo-500/30 transition-all group h-full flex flex-col items-center text-center">
-                  <div className={`w-20 h-20 rounded-2xl ${step.color} flex items-center justify-center mb-8 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>
-                    <step.icon className="w-10 h-10 text-white" />
+            {(aboutContent.visionSteps || [
+              { title: "Discovery", desc: "Identifying mathematical potential in every student.", icon: "Target", color: "bg-blue-500" },
+              { title: "Nurturing", desc: "Providing the resources and mentorship to grow.", icon: "Zap", color: "bg-indigo-500" },
+              { title: "Excellence", desc: "Achieving mastery through practice and competition.", icon: "Rocket", color: "bg-purple-500" },
+              { title: "Impact", desc: "Applying math to solve real-world global problems.", icon: "Globe", color: "bg-pink-500" }
+            ]).map((step: any, i: number) => {
+              const IconMap: any = { Target, Zap, Rocket, Globe };
+              const Icon = IconMap[step.icon] || Zap;
+              return (
+                <ScrollReveal 
+                  key={i} 
+                  direction="up" 
+                  distance={40} 
+                  delay={i * 0.2}
+                  className="relative z-10"
+                >
+                  <div className="glass-card p-10 border-white/5 hover:border-indigo-500/30 transition-all group h-full flex flex-col items-center text-center">
+                    <div className={`w-20 h-20 rounded-2xl ${step.color} flex items-center justify-center mb-8 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500`}>
+                      <Icon className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-indigo-500 font-black text-xl font-display">
+                      0{i + 1}
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-4 font-display uppercase tracking-wider">{step.title}</h3>
+                    <p className="text-zinc-400 text-sm leading-relaxed font-light">{step.desc}</p>
                   </div>
-                  <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-indigo-500 font-black text-xl font-display">
-                    0{i + 1}
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-4 font-display uppercase tracking-wider">{step.title}</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed font-light">{step.desc}</p>
-                </div>
-              </ScrollReveal>
-            ))}
+                </ScrollReveal>
+              );
+            })}
           </div>
         </section>
       </div>

@@ -1,18 +1,27 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useContent } from '../context/ContentContext';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Calculator, Brain, Users, ChevronLeft, ChevronRight, Quote, Code, Cpu, Globe, BookOpen, Lightbulb, Zap, Trophy, Star } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import ScrollReveal from '../components/ScrollReveal';
 import TypewriterText from '../components/TypewriterText';
 
+import { useAnimation } from 'framer-motion';
+
 const Home = () => {
   const { content, loading } = useContent();
+  const { home } = content;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const controls = useAnimation();
+  const [isDragging, setIsDragging] = useState(false);
 
-  const gallery = content.gallery && content.gallery.filter((img: string) => img.trim() !== "").length > 0 
-    ? content.gallery.filter((img: string) => img.trim() !== "")
+  const testimonials = home?.testimonials || [];
+  const duplicatedTestimonials = [...testimonials, ...testimonials, ...testimonials, ...testimonials];
+
+  const gallery = home?.gallery && home.gallery.length > 0 
+    ? home.gallery
     : [
         "https://picsum.photos/1920/1080?random=1",
         "https://picsum.photos/1920/1080?random=2",
@@ -30,9 +39,25 @@ const Home = () => {
     return () => clearInterval(timer);
   }, [gallery.length]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Loading...</div>;
+  useEffect(() => {
+    if (!isDragging && testimonials.length > 0) {
+      controls.start({
+        x: [0, -2000],
+        transition: {
+          x: {
+            repeat: Infinity,
+            repeatType: "loop",
+            duration: 50,
+            ease: "linear",
+          },
+        },
+      });
+    } else {
+      controls.stop();
+    }
+  }, [controls, isDragging, testimonials.length]);
 
-  const { home } = content;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Loading...</div>;
 
   const nextImage = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % gallery.length);
@@ -105,19 +130,19 @@ const Home = () => {
               transition={{ duration: 0.5 }}
               className="inline-block px-4 py-1.5 mb-8 rounded-full glass text-amber-400 text-xs font-bold tracking-[0.2em] uppercase border-amber-500/20"
             >
-              Est. 2015 * Excellence in Mathematics
+              {home?.heroTagline || "Est. 2015 * Excellence in Mathematics"}
             </motion.div>
             
             <div className="overflow-hidden mb-8">
               <h1 className="text-7xl md:text-[10rem] font-bold tracking-tighter text-white font-display leading-[0.85] flex flex-wrap justify-center gap-x-6">
-                {home?.heroTitle?.split(' ').map((word: string, i: number) => (
+                {(home?.heroTitle || "Josephite Math Club").split(' ').map((word: string, i: number, arr: string[]) => (
                   <motion.span
                     key={i}
                     custom={i}
                     initial="hidden"
                     animate="visible"
                     variants={wordVariants}
-                    className={i === (home?.heroTitle?.split(' ').length ?? 0) - 1 ? "gold-text" : ""}
+                    className={i === arr.length - 1 ? "gold-text" : ""}
                   >
                     {word}
                   </motion.span>
@@ -132,7 +157,7 @@ const Home = () => {
               className="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-16 leading-relaxed font-light tracking-tight h-[3em] flex items-center justify-center"
             >
               <TypewriterText 
-                texts={[
+                texts={home?.heroSubtitles || [
                   home?.heroSubtitle || "Where logic meets creativity to solve the world's most beautiful problems.",
                   "Exploring the infinite boundaries of mathematical thought.",
                   "Building a sanctuary for Josephite mathematicians.",
@@ -154,7 +179,7 @@ const Home = () => {
                   href="/panel"
                   className="px-12 py-5 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-full font-black uppercase tracking-widest hover:from-amber-400 hover:to-amber-500 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-amber-500/30"
                 >
-                  Join the Club <ArrowRight className="w-5 h-5" />
+                  {home?.joinButtonText || "Join the Club"} <ArrowRight className="w-5 h-5" />
                 </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -162,7 +187,7 @@ const Home = () => {
                   href="/about"
                   className="px-12 py-5 glass text-white rounded-full font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center border-white/10"
                 >
-                  Our Story
+                  {home?.storyButtonText || "Our Story"}
                 </Link>
               </motion.div>
             </motion.div>
@@ -218,7 +243,7 @@ const Home = () => {
               fontFamily: 'var(--font-handwritten)'
             }}
           >
-            {"\u222B"} f(x) dx
+            &int; f(x) dx
           </motion.div>
         </div>
       </section>
@@ -228,11 +253,17 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <ScrollReveal direction="up" distance={20} className="inline-block px-3 py-1 mb-4 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-bold tracking-[0.3em] uppercase border border-amber-500/20">
-              Visual Journey
+              {home?.memoriesTagline || "Visual Journey"}
             </ScrollReveal>
             <ScrollReveal direction="up" distance={30} delay={0.1}>
               <h2 className="text-6xl md:text-8xl font-bold tracking-tighter text-white font-display">
-                Our <span className="gold-text">Memories</span>
+                {home?.memoriesTitle?.split(' ').map((word: string, i: number, arr: string[]) => (
+                  <span key={i} className={i === arr.length - 1 ? "gold-text" : "mr-4"}>
+                    {word}
+                  </span>
+                )) || (
+                  <>Our <span className="gold-text">Memories</span></>
+                )}
               </h2>
             </ScrollReveal>
           </div>
@@ -292,7 +323,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
           <div className="text-center">
             <ScrollReveal direction="up" distance={20} className="inline-block px-3 py-1 mb-4 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-bold tracking-[0.3em] uppercase border border-amber-500/20">
-              Voices of JMC
+              {home?.testimonialsTagline || "Voices of JMC"}
             </ScrollReveal>
             <ScrollReveal direction="up" distance={30} delay={0.1}>
               <h2 className="text-6xl md:text-8xl font-bold tracking-tighter text-white font-display">
@@ -314,10 +345,15 @@ const Home = () => {
 
           <motion.div
             drag="x"
-            dragConstraints={{ left: -2000, right: 0 }}
+            dragConstraints={{ left: -4000, right: 0 }}
+            animate={controls}
+            onDragStart={() => setIsDragging(true)}
+            onDragEnd={() => setIsDragging(false)}
+            onMouseEnter={() => setIsDragging(true)}
+            onMouseLeave={() => setIsDragging(false)}
             className="flex gap-10 w-max px-4"
           >
-            {[...(home?.testimonials || []), ...(home?.testimonials || []), ...(home?.testimonials || [])].map((t: any, i: number) => (
+            {duplicatedTestimonials.map((t: any, i: number) => (
               <motion.div
                 key={i}
                 whileHover={{ 
@@ -333,9 +369,15 @@ const Home = () => {
                 
                 <div className="flex items-start justify-between mb-8 relative z-10">
                   <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-amber-500/20 bg-zinc-900 shrink-0 rotate-3 group-hover/card:rotate-0 transition-transform duration-500">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-amber-500/20 bg-zinc-900 shrink-0 rotate-3 group-hover/card:rotate-0 transition-transform duration-500 relative">
                       {t.imageUrl ? (
-                        <img src={t.imageUrl} alt={t.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <Image 
+                          src={t.imageUrl} 
+                          alt={t.name} 
+                          fill
+                          className="object-cover" 
+                          referrerPolicy="no-referrer" 
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-zinc-800">
                           <Users className="w-10 h-10 text-zinc-600" />
@@ -367,39 +409,51 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <ScrollReveal direction="left" distance={50}>
               <div className="inline-block px-3 py-1 mb-6 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-bold tracking-[0.3em] uppercase border border-indigo-500/20">
-                Our Mission
+                {home?.agendaTagline || "Our Mission"}
               </div>
               <h2 className="text-5xl md:text-7xl font-bold text-white font-display tracking-tighter mb-8">
-                The Club <span className="text-indigo-500">Agenda</span>
+                {home?.agendaTitle?.split(' ').map((word: string, i: number, arr: string[]) => (
+                  <span key={i} className={i === arr.length - 1 ? "text-indigo-500" : "mr-4"}>
+                    {word}
+                  </span>
+                )) || (
+                  <>The Club <span className="text-indigo-500">Agenda</span></>
+                )}
               </h2>
               <p className="text-xl text-zinc-400 font-light leading-relaxed mb-12">
-                We aim to bridge the gap between theoretical mathematics and practical innovation through a series of structured programs.
+                {home?.agendaDescription || "We aim to bridge the gap between theoretical mathematics and practical innovation through a series of structured programs."}
               </p>
               
               <div className="space-y-6">
-                {[
-                  { title: "Weekly Workshops", icon: Zap },
-                  { title: "Monthly Competitions", icon: Trophy },
-                  { title: "Annual Math Festival", icon: Star },
-                  { title: "Research Projects", icon: Lightbulb }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-4 group">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-indigo-500 transition-colors duration-500">
-                      <item.icon className="w-6 h-6 text-indigo-400 group-hover:text-white transition-colors duration-500" />
+                {(home?.agendaItems || [
+                  { title: "Weekly Workshops", icon: "Zap" },
+                  { title: "Monthly Competitions", icon: "Trophy" },
+                  { title: "Annual Math Festival", icon: "Star" },
+                  { title: "Research Projects", icon: "Lightbulb" }
+                ]).map((item: any, i: number) => {
+                  const IconMap: any = { Zap, Trophy, Star, Lightbulb };
+                  const Icon = IconMap[item.icon] || Zap;
+                  return (
+                    <div key={i} className="flex items-center gap-4 group">
+                      <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-indigo-500 transition-colors duration-500">
+                        <Icon className="w-6 h-6 text-indigo-400 group-hover:text-white transition-colors duration-500" />
+                      </div>
+                      <span className="text-lg text-white font-medium group-hover:text-indigo-400 transition-colors duration-500">{item.title}</span>
                     </div>
-                    <span className="text-lg text-white font-medium group-hover:text-indigo-400 transition-colors duration-500">{item.title}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </ScrollReveal>
 
             <ScrollReveal direction="right" distance={50} className="relative">
               <div className="aspect-square rounded-[3rem] overflow-hidden glass-card border-white/10 p-2">
                 <div className="w-full h-full rounded-[2.5rem] overflow-hidden relative">
-                  <img 
+                  <Image 
                     src="https://picsum.photos/seed/math-agenda/800/800" 
                     alt="Club Agenda" 
-                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                    fill
+                    className="object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                    referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-indigo-500/20 mix-blend-overlay" />
                 </div>

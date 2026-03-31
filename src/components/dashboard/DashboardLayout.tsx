@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Save, 
   Loader2, 
@@ -47,10 +48,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <div className="p-8 border-b border-white/5">
           <div className="flex items-center gap-4 mb-2">
             <div className="w-24 h-10 relative">
-              <img 
+              <Image 
                 src={logoUrl || "/images/logo.png"} 
                 alt="JMC Logo" 
-                className="h-full w-full object-contain"
+                fill
+                className="object-contain"
+                referrerPolicy="no-referrer"
               />
             </div>
             <div>

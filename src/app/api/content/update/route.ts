@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 
 export async function POST(req: NextRequest) {
@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
     }
 
     const contentPath = path.join(process.cwd(), 'src', 'data', 'site-content.json');
-    const content = JSON.parse(fs.readFileSync(contentPath, 'utf8'));
+    const contentData = await fs.readFile(contentPath, 'utf8');
+    const content = JSON.parse(contentData);
 
     // Helper to set nested property
     const setNestedProperty = (obj: any, path: string, value: any) => {
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     setNestedProperty(content, jsonPath, value);
 
     // Write back to file
-    fs.writeFileSync(contentPath, JSON.stringify(content, null, 2));
+    await fs.writeFile(contentPath, JSON.stringify(content, null, 2), 'utf8');
 
     return NextResponse.json({ success: true });
   } catch (error) {

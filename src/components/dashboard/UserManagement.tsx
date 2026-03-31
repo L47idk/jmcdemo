@@ -11,6 +11,7 @@ import {
   UserPlus
 } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { useToast } from '../../context/ToastContext';
 import { DashboardSection } from './DashboardSection';
 import { DashboardButton } from './DashboardButton';
 import { DashboardFormField } from './DashboardFormField';
@@ -18,6 +19,7 @@ import { DashboardFormField } from './DashboardFormField';
 export const UserManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
   const [manualUid, setManualUid] = useState('');
   const [promoting, setPromoting] = useState(false);
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
@@ -57,9 +59,10 @@ export const UserManagement = () => {
       
       if (error) throw error;
       setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+      showToast(`User role updated to ${newRole}`, 'success');
     } catch (error) {
       console.error("Error updating user role:", error);
-      alert("Failed to update user role.");
+      showToast("Failed to update user role.", 'error');
     } finally {
       setUpdatingUser(null);
     }
@@ -76,7 +79,7 @@ export const UserManagement = () => {
         .single();
       
       if (error || !data) {
-        alert("User with this ID does not exist in the database.");
+        showToast("User with this ID does not exist in the database.", 'error');
         return;
       }
 
@@ -87,12 +90,12 @@ export const UserManagement = () => {
       
       if (updateError) throw updateError;
       
-      alert(`User ${data.email || manualUid} has been promoted to Admin.`);
+      showToast(`User ${data.email || manualUid} has been promoted to Admin.`, 'success');
       setManualUid('');
       fetchUsers();
     } catch (error) {
       console.error("Error promoting user:", error);
-      alert("Failed to promote user.");
+      showToast("Failed to promote user.", 'error');
     } finally {
       setPromoting(false);
     }

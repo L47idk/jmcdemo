@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import { 
   Upload, 
   Trash2, 
@@ -10,28 +11,30 @@ import {
   X,
   CheckCircle2
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DashboardFileUploadProps {
-  path: (string | number)[];
+  path?: (string | number)[];
   value: string;
   label?: string;
-  uploading: boolean;
-  onUpload: (e: React.ChangeEvent<HTMLInputElement>, path: (string | number)[]) => void;
-  onDelete: (path: (string | number)[]) => void;
-  onChange: (path: (string | number)[], value: string) => void;
+  uploading?: boolean;
+  onUpload?: (e: React.ChangeEvent<HTMLInputElement>, path?: (string | number)[]) => void;
+  onDelete?: (path?: (string | number)[]) => void;
+  onChange?: (path: (string | number)[], value: string) => void;
+  onValueChange?: (value: string) => void;
   accept?: string;
   description?: string;
 }
 
 export const DashboardFileUpload: React.FC<DashboardFileUploadProps> = ({ 
-  path, 
+  path = [], 
   value, 
   label, 
-  uploading, 
+  uploading = false, 
   onUpload, 
   onDelete, 
   onChange,
+  onValueChange,
   accept = ".jpg,.jpeg,.png",
   description
 }) => {
@@ -71,10 +74,11 @@ export const DashboardFileUpload: React.FC<DashboardFileUploadProps> = ({
                       <FileText className="w-8 h-8 text-red-500" />
                     </div>
                   ) : (
-                    <img 
+                    <Image 
                       src={value} 
                       alt="Preview" 
-                      className="h-full w-full object-cover" 
+                      fill
+                      className="object-cover" 
                       referrerPolicy="no-referrer" 
                     />
                   )}
@@ -116,13 +120,13 @@ export const DashboardFileUpload: React.FC<DashboardFileUploadProps> = ({
                   type="file" 
                   className="hidden" 
                   accept={accept}
-                  onChange={(e) => onUpload(e, path)}
+                  onChange={(e) => onUpload?.(e, path)}
                 />
               </label>
               
               {value && (
                 <button
-                  onClick={() => onDelete(path)}
+                  onClick={() => onDelete?.(path)}
                   className="w-9 h-9 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl transition-all flex items-center justify-center border border-red-500/10"
                   title="Remove File"
                 >
@@ -143,7 +147,10 @@ export const DashboardFileUpload: React.FC<DashboardFileUploadProps> = ({
             <input
               type="text"
               value={value || ''}
-              onChange={(e) => onChange(path, e.target.value)}
+              onChange={(e) => {
+                onChange?.(path, e.target.value);
+                onValueChange?.(e.target.value);
+              }}
               placeholder="e.g. /api/local-images/photo.jpg"
               className="w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-xl text-white text-[11px] outline-none focus:border-amber-500/50 transition-all font-mono placeholder:text-zinc-700"
             />

@@ -6,13 +6,15 @@ import { useAuth } from '../context/AuthContext';
 interface ContentContextType {
   content: any;
   updateContent: (section: string, data: any) => Promise<void>;
-  saveAllContent: (newContent: any) => Promise<void>;
+  updateNestedField: (jsonPath: string, value: any) => Promise<void>;
+  saveAllContent: (data: any) => Promise<void>;
   loading: boolean;
 }
 
 const ContentContext = React.createContext<ContentContextType>({
   content: {},
   updateContent: async () => {},
+  updateNestedField: async () => {},
   saveAllContent: async () => {},
   loading: true,
 });
@@ -21,6 +23,20 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [content, setContent] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const { isAdmin } = useAuth();
+
+  // Helper to set nested property
+  const setNestedProperty = (obj: any, path: string, value: any) => {
+    const newObj = JSON.parse(JSON.stringify(obj));
+    const parts = path.split('.');
+    let current = newObj;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i];
+      if (!(part in current)) current[part] = {};
+      current = current[part];
+    }
+    current[parts[parts.length - 1]] = value;
+    return newObj;
+  };
 
   useEffect(() => {
     const defaults = {
@@ -135,60 +151,129 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           }
         }
       },
-      gallery: [],
-      notices: []
+      gallery: {
+        images: []
+      },
+      notices: {
+        title: "NOTICE BOARD",
+        subtitle: "ANNOUNCEMENTS",
+        description: "Stay updated with the latest announcements, results, and important information from the Josephite Math Club.",
+        notices: []
+      },
+      events: {
+        title: "BEYOND NUMBERS",
+        subtitle: "UPCOMING EVENTS",
+        description: "Join us for a series of challenging competitions, insightful workshops, and engaging seminars designed to push your mathematical boundaries.",
+        events: []
+      }
     };
 
     const fetchContent = async () => {
-      // 1. Try Supabase first if configured (it's the most persistent source)
+      setLoading(true);
+      let localContent = { ...defaults };
+      let localUpdatedAt = "1970-01-01T00:00:00Z";
+      let remoteContent = {};
+      let remoteUpdatedAt = "1970-01-01T00:00:00Z";
+
+      // 1. Try to fetch file-based content (local source)
+      try {
+        const response = await fetch('/api/content');
+        if (response.ok) {
+          const result = await response.json();
+          if (result && !result.error) {
+            localContent = result.data;
+            localUpdatedAt = result.updatedAt;
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching local content:", err);
+      }
+
+      // 2. Try to fetch Supabase content (remote source)
       if (isSupabaseConfigured) {
         try {
           const { data, error } = await supabase
             .from('site_content')
-            .select('content')
+            .select('data, updated_at')
             .eq('id', 'main')
             .single();
           
           if (data && !error) {
-            setContent(data.content);
-            setLoading(false);
-            return;
+            remoteContent = data.data;
+            remoteUpdatedAt = data.updated_at;
           }
         } catch (err) {
-          console.error("Error fetching supabase content:", err);
+          console.error("Error fetching remote content:", err);
         }
       }
 
-      // 2. Fallback to file-based content (local persistence/code-based)
-      try {
-        const response = await fetch('/api/content');
-        if (response.ok) {
-          const text = await response.text();
-          try {
-            const data = JSON.parse(text);
-            if (data && !data.error) {
-              setContent(data);
-              setLoading(false);
-              return;
-            }
-          } catch (parseErr) {
-            console.error("Error parsing content JSON:", parseErr);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching file-based content:", err);
-      }
+      // 3. Compare and Merge: The newer one wins
+      const localTime = new Date(localUpdatedAt).getTime();
+      const remoteTime = new Date(remoteUpdatedAt).getTime();
+      
+      // Merge content: newer source takes priority
+      const mergedContent = localTime > remoteTime 
+        ? { ...remoteContent, ...localContent } 
+        : { ...localContent, ...remoteContent };
 
-      // 3. Final fallback to hardcoded defaults
-      setContent(defaults);
+      setContent(mergedContent);
       setLoading(false);
+
+      // 4. Auto-sync if they are out of sync (only if admin)
+      // This ensures manual edits to JSON or DB eventually reach both sources.
+      if (isSupabaseConfigured && isAdmin && Math.abs(localTime - remoteTime) > 5000) {
+        if (localTime > remoteTime) {
+          console.log("Local JSON is newer, syncing to Supabase...");
+          await supabase.from('site_content').upsert({ id: 'main', data: localContent });
+        } else {
+          console.log("Remote Supabase is newer, syncing to local JSON...");
+          await fetch('/api/content', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(remoteContent),
+          });
+        }
+      }
     };
 
     fetchContent();
+  }, [isAdmin]);
+
+  // Real-time subscription for Supabase changes
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    const channel = supabase
+      .channel('site_content_realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'site_content',
+          filter: 'id=eq.main',
+        },
+        (payload) => {
+          console.log('Real-time content update received:', payload);
+          if (payload.new && (payload.new as any).data) {
+            setContent((prev: any) => ({
+              ...prev,
+              ...(payload.new as any).data
+            }));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const saveAllContent = async (newContent: any) => {
+  const updateContent = async (section: string, data: any) => {
     if (!isAdmin) return;
+    const newContent = { ...content, [section]: data };
+    
     setContent(newContent);
     
     // Update file-based content
@@ -204,20 +289,95 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     // Update Supabase
     if (isSupabaseConfigured) {
-      await supabase
-        .from('site_content')
-        .upsert({ id: 'main', content: newContent });
+      try {
+        const { error } = await supabase
+          .from('site_content')
+          .upsert({ id: 'main', data: newContent });
+        
+        if (error) {
+          console.error("Supabase Upsert Error (updateContent):", error);
+          throw error;
+        }
+        console.log("Content successfully saved to Supabase.");
+      } catch (err: any) {
+        console.error("Error updating Supabase content (updateContent):", err);
+        const errorMessage = err.message || "Unknown error";
+        throw new Error(`Failed to save changes to the database: ${errorMessage}. Please ensure the 'site_content' table exists and RLS policies are configured.`);
+      }
+    } else {
+      console.warn("Supabase is not configured. Changes will only be saved locally (and lost on reload in production).");
     }
   };
 
-  const updateContent = async (section: string, data: any) => {
+  const updateNestedField = async (jsonPath: string, value: any) => {
     if (!isAdmin) return;
-    const newContent = { ...content, [section]: data };
-    await saveAllContent(newContent);
+    
+    const newContent = setNestedProperty(content, jsonPath, value);
+    setContent(newContent);
+
+    // Update file-based content
+    try {
+      await fetch('/api/content/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonPath, value }),
+      });
+    } catch (err) {
+      console.error("Error updating file-based content:", err);
+    }
+
+    // Update Supabase
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('site_content')
+          .upsert({ id: 'main', data: newContent });
+        
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error updating Supabase content:", err);
+      }
+    }
+  };
+
+  const saveAllContent = async (newContent: any) => {
+    if (!isAdmin) return;
+    
+    setContent(newContent);
+    
+    // Update file-based content
+    try {
+      await fetch('/api/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newContent),
+      });
+    } catch (err) {
+      console.error("Error updating file-based content:", err);
+    }
+
+    // Update Supabase
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('site_content')
+          .upsert({ id: 'main', data: newContent });
+        
+        if (error) {
+          console.error("Supabase Upsert Error (saveAllContent):", error);
+          throw error;
+        }
+        console.log("Content successfully saved to Supabase.");
+      } catch (err: any) {
+        console.error("Error updating Supabase content (saveAllContent):", err);
+        const errorMessage = err.message || "Unknown error";
+        throw new Error(`Failed to save changes to the database: ${errorMessage}. Please ensure the 'site_content' table exists and RLS policies are configured.`);
+      }
+    }
   };
 
   return (
-    <ContentContext.Provider value={{ content, updateContent, saveAllContent, loading }}>
+    <ContentContext.Provider value={{ content, updateContent, updateNestedField, saveAllContent, loading }}>
       {children}
     </ContentContext.Provider>
   );

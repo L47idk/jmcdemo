@@ -4,20 +4,22 @@ import { produce } from 'immer';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useContent } from '../context/ContentContext';
+import { useToast } from '../context/ToastContext';
 
 export const useDashboard = () => {
   const { isAdmin, loading: authLoading } = useAuth();
   const { content, saveAllContent } = useContent();
+  const { showToast } = useToast();
   const [localContent, setLocalContent] = useState<any>(null);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ path: (string | number)[], isOpen: boolean }>({ path: [], isOpen: false });
 
   // Initialize local content with stable IDs
   useEffect(() => {
     if (content && Object.keys(content).length > 0 && !hasInitialized) {
-      console.log("Dashboard: Initializing local content from source of truth...");
       const next = JSON.parse(JSON.stringify(content));
       
       const ensureIds = (obj: any, prefix: string = 'item'): any => {
@@ -50,7 +52,6 @@ export const useDashboard = () => {
       const initialized = ensureIds(next, 'root');
       setLocalContent(initialized);
       setHasInitialized(true);
-      console.log("Dashboard: Initialization complete.", initialized);
     }
   }, [content, hasInitialized]);
 
@@ -67,7 +68,6 @@ export const useDashboard = () => {
         }
         current[path[path.length - 1]] = value;
       });
-      console.log(`Dashboard: Updated field at ${path.join('.')}`, value);
       return newState;
     });
   }, []);
@@ -78,8 +78,8 @@ export const useDashboard = () => {
     setSaveSuccess(false);
     try {
       const dataToSave = produce(localContent, (draft: any) => {
-        if (Array.isArray(draft.gallery)) {
-          draft.gallery = draft.gallery.map((item: any) => 
+        if (draft.gallery && Array.isArray(draft.gallery.images)) {
+          draft.gallery.images = draft.gallery.images.map((item: any) => 
             (item && typeof item === 'object' && 'url' in item) ? item.url : item
           );
         }
@@ -87,10 +87,11 @@ export const useDashboard = () => {
 
       await saveAllContent(dataToSave);
       setSaveSuccess(true);
+      showToast("Changes saved successfully!", "success");
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
       console.error("Error saving content:", error);
-      alert("Failed to save changes.");
+      showToast("Failed to save changes.", "error");
     } finally {
       setSaving(false);
     }
@@ -98,7 +99,7 @@ export const useDashboard = () => {
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, path: (string | number)[]) => {
     if (!isSupabaseConfigured) {
-      alert("Database is not configured. File upload is disabled.");
+      showToast("Database is not configured. File upload is disabled.", "error");
       return;
     }
     const file = e.target.files?.[0];
@@ -109,7 +110,7 @@ export const useDashboard = () => {
     const isValidExtension = ['jpg', 'jpeg', 'png', 'pdf'].includes(fileExtension || '');
 
     if (!validTypes.includes(file.type) && !isValidExtension) {
-      alert("Only .jpg, .png and .pdf formats are allowed.");
+      showToast("Only .jpg, .png and .pdf formats are allowed.", "error");
       return;
     }
 
@@ -139,22 +140,26 @@ export const useDashboard = () => {
         .getPublicUrl(fileName);
 
       updateFieldByPath(path, publicUrl);
+      showToast("File uploaded successfully!", "success");
     } catch (error) {
       console.error("Upload error:", error);
-      alert("Failed to upload file.");
+      showToast("Failed to upload file.", "error");
     } finally {
       setUploading(null);
     }
   };
 
   const handleDeleteFile = (path: (string | number)[]) => {
-    if (!window.confirm("Are you sure you want to delete this file?")) return;
     updateFieldByPath(path, "");
+    showToast("File removed from content. Save to apply changes.", "info");
+  };
+
+  const requestDeleteFile = (path: (string | number)[]) => {
+    setConfirmDelete({ path, isOpen: true });
   };
 
   const resetLocalContent = useCallback(() => {
     if (content && Object.keys(content).length > 0) {
-      console.log("Dashboard: Resetting local content to server state...");
       const next = JSON.parse(JSON.stringify(content));
       
       const ensureIds = (obj: any, prefix: string = 'item'): any => {
@@ -185,7 +190,6 @@ export const useDashboard = () => {
       };
 
       setLocalContent(ensureIds(next, 'root'));
-      console.log("Dashboard: Reset complete.");
     }
   }, [content]);
 
@@ -200,6 +204,9 @@ export const useDashboard = () => {
     handleSave,
     handleFileUpload,
     handleDeleteFile,
+    requestDeleteFile,
+    confirmDelete,
+    setConfirmDelete,
     updateFieldByPath,
     resetLocalContent,
     isSupabaseConfigured

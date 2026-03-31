@@ -1,7 +1,8 @@
 "use client";
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Phone, MapPin, Send } from 'lucide-react';
+import { useContent } from '@/context/ContentContext';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -9,6 +10,13 @@ interface ContactModalProps {
 }
 
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
+  const { content } = useContent();
+  const contact = content?.contact || {
+    email: 'hello@josephitemath.club',
+    phone: '+880 1712-345678',
+    location: "St. Joseph's Campus, Math Wing"
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -49,7 +57,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Email</h4>
-                      <p className="text-zinc-400 text-sm">hello@josephitemath.club</p>
+                      <p className="text-zinc-400 text-sm">{contact.email}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -58,7 +66,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Phone</h4>
-                      <p className="text-zinc-400 text-sm">+1 (555) 000-0000</p>
+                      <p className="text-zinc-400 text-sm">{contact.phone}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
@@ -67,7 +75,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-1">Location</h4>
-                      <p className="text-zinc-400 text-sm">St. Joseph&apos;s Campus, Math Wing</p>
+                      <p className="text-zinc-400 text-sm">{contact.location}</p>
                     </div>
                   </div>
                 </div>

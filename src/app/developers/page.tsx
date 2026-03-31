@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
-import { motion } from 'motion/react';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { GithubIcon, LinkedinIcon } from '@/components/SocialIcons';
 import { Globe, Mail, Code2, Cpu, Palette, Terminal } from 'lucide-react';
 import ScrollReveal from '@/components/ScrollReveal';
@@ -99,10 +100,12 @@ export default function DevelopersPage() {
                 <div className="flex flex-col md:flex-row gap-12 items-center relative z-10">
                   <div className="w-48 h-48 md:w-64 md:h-64 shrink-0 relative">
                     <div className="absolute inset-0 bg-gradient-to-tr from-amber-500 to-indigo-500 rounded-2xl rotate-6 group-hover:rotate-12 transition-transform duration-500" />
-                    <img 
+                    <Image 
                       src={dev.image} 
                       alt={dev.name}
-                      className="absolute inset-0 w-full h-full object-cover rounded-2xl grayscale group-hover:grayscale-0 transition-all duration-500"
+                      fill
+                      className="object-cover rounded-2xl grayscale group-hover:grayscale-0 transition-all duration-500"
+                      referrerPolicy="no-referrer"
                     />
                   </div>
 

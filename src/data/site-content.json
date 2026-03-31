@@ -1,12 +1,49 @@
 {
-  "site": {
-    "clubName": "Josephite Math Club",
-    "logoUrl": "/images/logo.png"
-  },
   "home": {
     "heroTitle": "Josephite Math Club",
-    "heroSubtitle": "Where logic meets imagination.",
+    "heroSubtitle": "Where logic meets creativity to solve the world's most beautiful problems.",
+    "heroSubtitles": [
+      "Where logic meets creativity to solve the world's most beautiful problems.",
+      "Exploring the infinite boundaries of mathematical thought.",
+      "Building a sanctuary for Josephite mathematicians.",
+      "Innovating through the language of the universe."
+    ],
+    "heroTagline": "Est. 2015 * Excellence in Mathematics",
+    "joinButtonText": "Join the Club",
+    "storyButtonText": "Our Story",
+    "memoriesTitle": "Our Memories",
+    "memoriesTagline": "Visual Journey",
+    "gallery": [
+      "images/gallery/gallery1.jpg",
+      "images/gallery/gallery2.jpg",
+      "images/gallery/gallery3.jpg",
+      "images/gallery/gallery4.jpg",
+      "images/gallery/gallery5.jpg",
+      "images/gallery/gallery6.jpg"
+    ],
     "testimonialsTitle": "People About JMC",
+    "testimonialsTagline": "Voices of JMC",
+    "agendaTitle": "The Club Agenda",
+    "agendaTagline": "Our Mission",
+    "agendaDescription": "We aim to bridge the gap between theoretical mathematics and practical innovation through a series of structured programs.",
+    "agendaItems": [
+      {
+        "title": "Weekly Workshops",
+        "icon": "Zap"
+      },
+      {
+        "title": "Monthly Competitions",
+        "icon": "Trophy"
+      },
+      {
+        "title": "Annual Math Festival",
+        "icon": "Star"
+      },
+      {
+        "title": "Research Projects",
+        "icon": "Lightbulb"
+      }
+    ],
     "testimonials": [
       {
         "name": "Anthony Prince Costa",
@@ -45,36 +82,97 @@
       }
     ]
   },
+  "site": {
+    "clubName": "Josephite Math Club",
+    "logoUrl": "/images/logo.png",
+    "established": "EST. 2015"
+  },
   "about": {
     "title": "What is JMC?",
     "description": "The Josephite Math Club is dedicated to cultivating a passion for mathematics. Our mission is to provide a supportive environment for students to explore mathematical concepts, participate in competitions, and engage in math-related events. Join us to experience the world of mathematics in a whole new way!",
-    "mission": ""
+    "mission": "",
+    "visionTagline": "Our Vision",
+    "objectivesTitle": "Our Objectives",
+    "pathTagline": "The Path Forward",
+    "visionStepsTitle": "Vision in 4 Steps",
+    "stats": [
+      {
+        "number": "10+",
+        "label": "Years of Excellence"
+      },
+      {
+        "number": "100+",
+        "label": "Workshops Conducted"
+      },
+      {
+        "number": "6",
+        "label": "National Festivals"
+      },
+      {
+        "number": "20k+",
+        "label": "Students Impacted"
+      }
+    ],
+    "objectives": [
+      {
+        "title": "Problem Solving",
+        "description": "Develop your math skills through challenging problems and real-world applications. Build critical thinking and problem-solving abilities.",
+        "icon": "Calculator",
+        "color": "text-purple-400"
+      },
+      {
+        "title": "Olympiad Preparation",
+        "description": "Preparing for math Olympiads helps you think outside the box and tackle advanced problems with confidence.",
+        "icon": "Trophy",
+        "color": "text-amber-400"
+      },
+      {
+        "title": "Creativity",
+        "description": "Learn how creativity fuels problem-solving. Apply mathematical thinking in innovative ways.",
+        "icon": "Lightbulb",
+        "color": "text-emerald-400"
+      },
+      {
+        "title": "Love for Math",
+        "description": "Embrace your passion for mathematics and explore its beauty in a supportive environment.",
+        "icon": "Heart",
+        "color": "text-rose-400"
+      }
+    ],
+    "visionSteps": [
+      {
+        "title": "Discovery",
+        "desc": "Identifying mathematical potential in every student.",
+        "icon": "Target",
+        "color": "bg-blue-500"
+      },
+      {
+        "title": "Nurturing",
+        "desc": "Providing the resources and mentorship to grow.",
+        "icon": "Zap",
+        "color": "bg-indigo-500"
+      },
+      {
+        "title": "Excellence",
+        "desc": "Achieving mastery through practice and competition.",
+        "icon": "Rocket",
+        "color": "bg-purple-500"
+      },
+      {
+        "title": "Impact",
+        "desc": "Applying math to solve real-world global problems.",
+        "icon": "Globe",
+        "color": "bg-pink-500"
+      }
+    ]
   },
-  "events": [
-    {
-      "id": "event-1774272297034",
-      "title": "Math olympiad",
-      "category": "Olympiad",
-      "date": "20274-03-31",
-      "time": "10:50pm",
-      "location": "St. joseph campus",
-      "description": "Join it",
-      "imageUrl": "",
-      "link": ""
-    },
-    {
-      "id": "event-1774272334424",
-      "title": "",
-      "category": "Workshop",
-      "date": "",
-      "time": "",
-      "location": "",
-      "description": "",
-      "imageUrl": "",
-      "link": ""
-    }
-  ],
   "panel": {
+    "moderatorsTitle": "Moderators",
+    "executiveTitle": "Executive Committee",
+    "executiveSubtitle": "The Core Leadership",
+    "departmentsTitle": "Department Leadership",
+    "departmentsSubtitle": "Department Heads",
+    "secretariesTitle": "Secretary Positions",
     "moderators": [
       {
         "role": "Chief Moderator",
@@ -84,19 +182,19 @@
       },
       {
         "role": "Moderator",
-        "name": "Intesher Alam Manam",
+        "name": "Ashim Halder",
         "imageUrl": "/images/members/intesher.jpg",
         "id": "root-panel-moderators-1-209b2rqxo"
       },
       {
         "role": "Moderator",
-        "name": "Shoumik Saha Raj",
+        "name": "Dipak Kumar Sarkar",
         "imageUrl": "/images/members/shoumik.jpg",
         "id": "root-panel-moderators-2-4litfrluq"
       },
       {
         "role": "Moderator",
-        "name": "Monwar Rafat",
+        "name": "Israt Jahan Akhi",
         "imageUrl": "/images/members/monwar.jpg",
         "id": "root-panel-moderators-3-uq539p2y1"
       }
@@ -106,7 +204,7 @@
         "president": [
           {
             "role": "President",
-            "name": "Intesher Alam Manam",
+            "name": "Tawhid Bin Omar",
             "imageUrl": "/images/members/intesher.jpg",
             "id": "root-panel-executive-current-president-0-bftg3lph8"
           }
@@ -390,7 +488,7 @@
         "president": [
           {
             "role": "President",
-            "name": "",
+            "name": "Intesher Alam Manam",
             "imageUrl": "",
             "id": "root-panel-executive-recent-president-0-zpdlhoo5x"
           }
@@ -398,13 +496,13 @@
         "deputyPresidents": [
           {
             "role": "Deputy President",
-            "name": "",
+            "name": "Monwar Rafat",
             "imageUrl": "",
             "id": "root-panel-executive-recent-deputyPresidents-0-un29kwc62"
           },
           {
             "role": "Deputy President",
-            "name": "",
+            "name": "Tahmid Tahsan Pranto",
             "imageUrl": "",
             "id": "root-panel-executive-recent-deputyPresidents-1-fjwypazce"
           }
@@ -412,7 +510,7 @@
         "generalSecretary": [
           {
             "role": "General Secretary",
-            "name": "",
+            "name": "Shoumik Saha Raj",
             "imageUrl": "",
             "id": "root-panel-executive-recent-generalSecretary-0-5vb375vtw"
           }
@@ -420,105 +518,110 @@
         "vicePresidents": [
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Protoy Nandi Ramya",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-0-hxfi36fjk"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Arefin Anwar",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-1-55u5xmfl5"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Oyshworzo Ashad Dipto",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-2-cm97stvkj"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Asif Ahmed Tamim",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-3-rpbkr95ce"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Addahy Bakali Kabbay",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-4-dondx25aa"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Sayeeb Safwan",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-5-dwbvauedg"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Tapantor Das",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-6-a0qh5fofw"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Imtiaz Nasif Nur",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-7-2stmm9hgd"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Fardin Alam Niloy",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-8-aszv850mu"
           },
           {
             "role": "Vice President",
-            "name": "",
+            "name": "Emmanuel Gosal",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-9-nfmfxyida"
+          },
+          {
+            "name": "Saqeef Mihran Sabir",
+            "role": "Vice Presidents",
+            "imageUrl": ""
           }
         ],
         "departments": [
           {
             "dept": "Internal Affairs",
-            "name": "",
+            "name": "Utkorsho Mistry Shouvik",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-0-jkt7iocag"
           },
           {
             "dept": "External Affairs",
-            "name": "",
+            "name": "Mahatab Hossain Zihan",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-1-79gllwxx8"
           },
           {
             "dept": "Photography",
-            "name": "",
+            "name": "Shirsha Roy",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-2-6aftb3s3w"
           },
           {
             "dept": "Events",
-            "name": "",
+            "name": "Ahnaf Abeed",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-3-jxm3gyo54"
           },
           {
             "dept": "Writings",
-            "name": "",
+            "name": "Shafayet Azmayeen",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-4-2vdvgnt4p"
           },
           {
             "dept": "Equity",
-            "name": "",
+            "name": "Hosain Istiyake Antor",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-5-olh6dbuc4"
           },
           {
             "dept": "Decoration",
-            "name": "",
+            "name": "Mahi Bareed Noor",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-6-d2unmyto6"
           }
@@ -526,145 +629,145 @@
         "secretaries": {
           "asstGeneralSecretary": [
             {
-              "name": "",
+              "name": "Kazi Nafisul Bashar",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-0-og93d3bw4"
             },
             {
-              "name": "",
+              "name": "Tahmid Muhsin Taqi",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-1-qlby7xf64"
             },
             {
-              "name": "",
+              "name": "Tawsif Hamid Abir",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-2-hor0n3jmm"
             },
             {
-              "name": "",
+              "name": "Shougoto Saha",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-3-gft405kzm"
             },
             {
-              "name": "",
+              "name": "Mahdi Rasif",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-4-rztcb9m97"
             },
             {
-              "name": "",
+              "name": "Arefin Alam Tanjim",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-5-az18txwc7"
             },
             {
-              "name": "",
+              "name": "Tauhidur Rahman",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-6-xiz0chf4s"
             },
             {
-              "name": "",
+              "name": "Zulkarnain Zaman Aarosh",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-7-qzqz9avkm"
             },
             {
-              "name": "",
+              "name": "Sindid Alam",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-8-tgt9iqfm4"
             },
             {
-              "name": "",
+              "name": "Muhtadee Tausif Hasan Adib",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-9-s04exm6tx"
             },
             {
-              "name": "",
+              "name": "MD Jarif Bin Hossain",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-10-2qd2zgpd7"
             }
           ],
           "jointSecretary": [
             {
-              "name": "",
+              "name": "Swapnil Podder",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-0-pjd7xwcxl"
             },
             {
-              "name": "",
+              "name": "Ragib Ash Add",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-1-ay8113sj3"
             },
             {
-              "name": "",
+              "name": "Md. Nazmus Sakib",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-2-fhfkj5z25"
             },
             {
-              "name": "",
+              "name": "Ajmol Fahim",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-3-k7mhxaipq"
             },
             {
-              "name": "",
+              "name": "Probaho Kul Sanchalon Minhaz",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-4-epbfmiyg6"
             },
             {
-              "name": "",
+              "name": "Shuvashish Saha",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-5-0k1m2u41f"
             },
             {
-              "name": "",
+              "name": "S M Abir",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-6-7p4ajo1w0"
             },
             {
-              "name": "",
+              "name": "Tasdid Alam Ratul",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-7-57zdzquit"
             },
             {
-              "name": "",
+              "name": "Raiyan Nafir Rhythm",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-8-n7itg746v"
             },
             {
-              "name": "",
+              "name": "Sameer Saihan",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-9-x8dbni5p7"
             }
           ],
           "organizingSecretary": [
             {
-              "name": "",
+              "name": "Shuvro",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-0-fb59u0skk"
             },
             {
-              "name": "",
+              "name": "Riyad Miah",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-1-qc6fzfzpp"
             },
             {
-              "name": "",
+              "name": "Krrish",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-2-x1fkobbll"
             },
             {
-              "name": "",
+              "name": "Sadman",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-3-vy35gduwc"
             },
             {
-              "name": "",
+              "name": "Walid Pathan",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-4-xgvcrsxun"
             },
             {
-              "name": "",
+              "name": "Shirsendu Das",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-5-bnegiu1x1"
             }
           ],
           "correspondingSecretary": [
             {
-              "name": "",
+              "name": "Farhan",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-0-og4sqawvx"
             },
             {
-              "name": "",
+              "name": "Mashnoon",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-1-qcn5iflm8"
             },
             {
-              "name": "",
+              "name": "Oliver",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-2-y39pppa1c"
             },
             {
-              "name": "",
+              "name": "Shuvro Aninda Bepari",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-3-et5xkfctf"
             },
             {
-              "name": "",
+              "name": "Saraf Islam Nuhil",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-4-kvgl1k8b7"
             },
             {
-              "name": "",
+              "name": "Tahmid",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-5-fxlxdc1g3"
             },
             {
-              "name": "",
+              "name": "Al Wasif",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-6-uy3vyuif7"
             }
           ]
@@ -956,22 +1059,131 @@
       }
     }
   },
-  "gallery": [
-    "/images/gallery/memories1.jpg",
-    "/images/gallery/memories2.jpg",
-    "/images/gallery/memories3.jpg",
-    "/images/gallery/memories4.jpg",
-    "/images/gallery/memories5.jpg",
-    "/images/gallery/memories6.jpg"
-  ],
-  "notices": [
-    {
-      "id": "notice-1772615072128-7565bb9hx",
-      "title": "fds",
-      "description": "afsadf",
-      "date": "2026-03-04",
-      "imageUrl": "https://gqcwzxnuawpfqvrukcmn.supabase.co/storage/v1/object/public/image/1772615075793-3.pdf",
-      "link": ""
+  "events": {
+    "title": "BEYOND NUMBERS",
+    "subtitle": "UPCOMING EVENTS",
+    "description": "Join us for a series of challenging competitions, insightful workshops, and engaging seminars designed to push your mathematical boundaries.",
+    "categories": [
+      {
+        "id": "all",
+        "name": "All",
+        "icon": "Calendar"
+      },
+      {
+        "id": "competition",
+        "name": "Competitions",
+        "icon": "Trophy"
+      },
+      {
+        "id": "workshop",
+        "name": "Workshops",
+        "icon": "BookOpen"
+      },
+      {
+        "id": "seminar",
+        "name": "Seminars",
+        "icon": "Users"
+      }
+    ],
+    "events": [
+      {
+        "id": "event-1774272297034",
+        "title": "Math olympiad",
+        "category": "Olympiad",
+        "date": "20274-03-31",
+        "time": "10:50pm",
+        "location": "St. joseph campus",
+        "description": "Join it",
+        "imageUrl": "",
+        "link": "",
+        "buttonText": "Register Now",
+        "registrationLink": "https://forms.gle/example",
+        "tag": "important"
+      },
+      {
+        "id": "event-1774272334424",
+        "title": "Math Workshop",
+        "category": "Workshop",
+        "date": "2026-04-15",
+        "time": "4:00pm",
+        "location": "Auditorium",
+        "description": "A deep dive into calculus.",
+        "imageUrl": "",
+        "link": "",
+        "buttonText": "Join Workshop",
+        "registrationLink": "",
+        "tag": "general"
+      }
+    ]
+  },
+  "gallery": {
+    "images": [
+      "/images/gallery/gallery1.jpg",
+      "/images/gallery/gallery2.jpg",
+      "/images/gallery/gallery3.jpg",
+      "/images/gallery/gallery4.jpg",
+      "/images/gallery/gallery5.jpg",
+      "/images/gallery/gallery6.jpg"
+    ]
+  },
+  "notices": {
+    "title": "NOTICE BOARD",
+    "subtitle": "ANNOUNCEMENTS",
+    "description": "Stay updated with the latest announcements, results, and important information from the Josephite Math Club.",
+    "categories": [
+      {
+        "id": "all",
+        "name": "All",
+        "icon": "Bell"
+      },
+      {
+        "id": "important",
+        "name": "Important",
+        "icon": "AlertTriangle"
+      },
+      {
+        "id": "general",
+        "name": "General",
+        "icon": "Info"
+      },
+      {
+        "id": "success",
+        "name": "Success",
+        "icon": "CheckCircle"
+      }
+    ],
+    "notices": [
+      {
+        "id": "notice-1772615072128-7565bb9hx",
+        "title": "fds",
+        "content": "afsadf",
+        "date": "2026-03-04",
+        "imageUrl": "https://gqcwzxnuawpfqvrukcmn.supabase.co/storage/v1/object/public/image/1772615075793-3.pdf",
+        "link": "",
+        "linkText": "View Details",
+        "tag": "general"
+      }
+    ]
+  },
+  "contact": {
+    "email": "hello@josephitemath.club",
+    "phone": "+880 1712-345678",
+    "location": "St. Joseph's Campus, Math Wing",
+    "socials": {
+      "facebook": "https://facebook.com/josephitemathclub",
+      "instagram": "https://instagram.com/josephitemathclub",
+      "linkedin": ""
     }
-  ]
+  },
+  "registration": {
+    "fee": "200 BDT",
+    "bkashNumber": "01712345678",
+    "instructions": [
+      "Go to your bKash app or dial *247#",
+      "Select \"Send Money\" and enter the number above",
+      "Enter the registration fee amount",
+      "Copy the Transaction ID (TrxID) and enter it below"
+    ],
+    "cashInstructions": "Please pay your registration fee to the club treasurer."
+  }
 }

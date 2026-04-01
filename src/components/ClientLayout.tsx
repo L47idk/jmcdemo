@@ -13,30 +13,6 @@ import CustomCursor from "@/components/CustomCursor";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Footer from "@/components/Footer";
 
-// Check for Supabase key issues globally
-if (typeof window !== 'undefined') {
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (key) {
-    try {
-      const parts = key.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1]));
-        if (payload.role === 'service_role') {
-          console.error(
-            "%c SECURITY WARNING %c You are using a Supabase 'service_role' key in the browser. " +
-            "This key has full administrative access and MUST NOT be exposed. " +
-            "Please replace NEXT_PUBLIC_SUPABASE_ANON_KEY with your public 'anon' key in the Settings menu.",
-            "background: red; color: white; font-weight: bold; padding: 4px; border-radius: 4px;",
-            "color: red; font-weight: bold;"
-          );
-        }
-      }
-    } catch (e) {
-      // Ignore parsing errors
-    }
-  }
-}
-
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const { loading, content } = useContent();
   const [splashFinished, setSplashFinished] = useState(false);

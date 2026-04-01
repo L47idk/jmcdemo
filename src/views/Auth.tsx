@@ -19,6 +19,12 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDebug, setShowDebug] = useState(false);
+  const [testResult, setTestResult] = useState<string | null>(null);
+
+  const isConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
   useEffect(() => {
     if (searchParams?.get('mode') === 'signup') {
@@ -28,8 +34,40 @@ const Auth = () => {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (!isConfigured) {
+      setError("Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment variables.");
+    } else if (!supabaseUrl.startsWith('http')) {
+      setError("Supabase URL is invalid. It must start with 'https://'. Current value: " + supabaseUrl);
+    }
+  }, [isConfigured, supabaseUrl]);
+
+  const testConnection = async () => {
+    setTestResult("Testing...");
+    try {
+      const res = await fetch(`${supabaseUrl}/auth/v1/health`, {
+        headers: { 'apikey': supabaseAnonKey }
+      });
+      if (res.ok) {
+        setTestResult("Connection successful! Supabase is reachable.");
+      } else {
+        setTestResult(`Connection failed with status: ${res.status} ${res.statusText}`);
+      }
+    } catch (err: any) {
+      setTestResult(`Connection error: ${err.message}`);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isConfigured) {
+      setError("Cannot authenticate: Supabase configuration is missing.");
+      return;
+    }
+    if (!supabaseUrl.startsWith('http')) {
+      setError("Cannot authenticate: Supabase URL is invalid.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -54,10 +92,20 @@ const Auth = () => {
         router.push('/profile');
       }
     } catch (err: any) {
-      setError(err.message);
+      if (err.message === 'Failed to fetch') {
+        setError("Network error: Failed to connect to Supabase. This usually means your NEXT_PUBLIC_SUPABASE_URL is incorrect or your internet connection is down.");
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const maskString = (str: string) => {
+    if (!str) return "EMPTY";
+    if (str.length <= 8) return "****";
+    return str.substring(0, 4) + "...." + str.substring(str.length - 4);
   };
 
   return (
@@ -149,7 +197,7 @@ const Auth = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                    placeholder="••••••••"
                     className="w-full pl-16 pr-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
                   />
                 </div>
@@ -159,10 +207,36 @@ const Auth = () => {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="p-5 rounded-3xl bg-red-500/10 border border-red-500/20 flex items-center gap-4 text-red-500 text-xs font-bold uppercase tracking-widest"
+                  className="p-5 rounded-3xl bg-red-500/10 border border-red-500/20 flex flex-col gap-2 text-red-500 text-xs font-bold uppercase tracking-widest"
                 >
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  {error}
+                  <div className="flex items-center gap-4">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setShowDebug(!showDebug)}
+                    className="text-[8px] text-zinc-500 hover:text-zinc-400 mt-2 self-start"
+                  >
+                    {showDebug ? "HIDE DEBUG INFO" : "SHOW DEBUG INFO"}
+                  </button>
+                  {showDebug && (
+                    <div className="mt-2 p-4 bg-black/40 rounded-2xl font-mono text-[8px] space-y-1 lowercase tracking-normal">
+                      <div>URL: {supabaseUrl || "MISSING"}</div>
+                      <div>KEY: {maskString(supabaseAnonKey)}</div>
+                      <div>CONFIGURED: {isConfigured ? "YES" : "NO"}</div>
+                      <div className="pt-2 flex flex-col gap-1">
+                        <button 
+                          type="button"
+                          onClick={testConnection}
+                          className="text-amber-500 hover:text-amber-400 underline self-start"
+                        >
+                          TEST CONNECTION
+                        </button>
+                        {testResult && <div className="text-zinc-400 italic">{testResult}</div>}
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               )}
 

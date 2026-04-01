@@ -14,12 +14,12 @@
     "memoriesTitle": "Our Memories",
     "memoriesTagline": "Visual Journey",
     "gallery": [
-      "images/gallery/gallery1.jpg",
-      "images/gallery/gallery2.jpg",
-      "images/gallery/gallery3.jpg",
-      "images/gallery/gallery4.jpg",
-      "images/gallery/gallery5.jpg",
-      "images/gallery/gallery6.jpg"
+      "/images/gallery/gallery1.jpg",
+      "/images/gallery/gallery2.jpg",
+      "/images/gallery/gallery3.jpg",
+      "/images/gallery/gallery4.jpg",
+      "/images/gallery/gallery5.jpg",
+      "/images/gallery/gallery6.jpg"
     ],
     "testimonialsTitle": "People About JMC",
     "testimonialsTagline": "Voices of JMC",

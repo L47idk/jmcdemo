@@ -184,9 +184,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             localContent = result.data;
             localUpdatedAt = result.updatedAt;
           }
+        } else {
+          console.warn("Local content API returned an error:", response.status);
         }
       } catch (err) {
-        console.error("Error fetching local content:", err);
+        console.error("Error fetching local content (network error):", err);
       }
 
       // 2. Try to fetch Supabase content (remote source)

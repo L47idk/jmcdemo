@@ -23,12 +23,12 @@ const Home = () => {
   const gallery = home?.gallery && home.gallery.length > 0 
     ? home.gallery
     : [
-        "https://picsum.photos/1920/1080?random=1",
-        "https://picsum.photos/1920/1080?random=2",
-        "https://picsum.photos/1920/1080?random=3",
-        "https://picsum.photos/1920/1080?random=4",
-        "https://picsum.photos/1920/1080?random=5",
-        "https://picsum.photos/1920/1080?random=6",
+        "/images/gallery/gallery1.jpg",
+        "/images/gallery/gallery2.jpg",
+        "/images/gallery/gallery3.jpg",
+        "/images/gallery/gallery4.jpg",
+        "/images/gallery/gallery5.jpg",
+        "/images/gallery/gallery6.jpg",
       ];
 
   useEffect(() => {

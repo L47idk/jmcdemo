@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
+import { usePerformance } from '../hooks/usePerformance';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -25,6 +26,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   cancelLabel = "Cancel",
   type = 'warning'
 }) => {
+  const { shouldReduceGfx } = usePerformance();
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -34,13 +37,13 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onCancel}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className={`absolute inset-0 bg-black/80 ${shouldReduceGfx ? '' : 'backdrop-blur-sm'}`}
           />
           
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
             className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-[2rem] p-8 shadow-2xl overflow-hidden"
           >
             <div className="absolute top-0 right-0 p-6">

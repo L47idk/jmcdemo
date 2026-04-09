@@ -13,16 +13,21 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
-  ChevronRight
+  ChevronRight,
+  LayoutDashboard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
 import ScrollReveal from '../components/ScrollReveal';
 
+import { usePerformance } from '../hooks/usePerformance';
+import { resolveImageUrl } from '../lib/utils';
+
 const Profile = () => {
   const { user, profile, loading: authLoading, isAdmin, signOut, refreshProfile } = useAuth();
   const router = useRouter();
+  const { shouldReduceGfx } = usePerformance();
   
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -106,7 +111,7 @@ const Profile = () => {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#080808]">
-        <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-[var(--c-6-start)] animate-spin" />
       </div>
     );
   }
@@ -120,13 +125,13 @@ const Profile = () => {
             <div className="lg:col-span-4 space-y-8">
               <ScrollReveal direction="left">
                 <div className="p-8 rounded-[40px] bg-white/[0.03] border border-white/10 backdrop-blur-xl relative overflow-hidden text-center">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--c-6-start)]/5 rounded-full blur-3xl -mr-16 -mt-16" />
                   
                   <div className="relative mb-8 inline-block group">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 group-hover:border-amber-500/50 transition-all relative">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 group-hover:border-[var(--c-6-start)]/50 transition-all relative">
                       {profile?.avatar_url ? (
                         <Image 
-                          src={profile.avatar_url} 
+                          src={resolveImageUrl(profile.avatar_url)} 
                           alt={profile.full_name || "User Avatar"} 
                           fill
                           className="object-cover" 
@@ -138,7 +143,7 @@ const Profile = () => {
                         </div>
                       )}
                     </div>
-                    <button className="absolute bottom-0 right-0 p-3 rounded-full bg-amber-500 text-black shadow-xl hover:scale-110 transition-transform">
+                    <button className={`absolute bottom-0 right-0 p-3 rounded-full bg-[var(--c-6-start)] text-white shadow-xl ${!shouldReduceGfx && 'hover:scale-110 transition-transform'}`}>
                       <Camera className="w-4 h-4" />
                     </button>
                   </div>
@@ -147,13 +152,22 @@ const Profile = () => {
                   <p className="text-sm text-zinc-500 font-medium mb-6">{user.email}</p>
                   
                   {isAdmin && (
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold uppercase tracking-widest mb-8">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--c-6-start)]/10 border border-[var(--c-6-start)]/20 text-[var(--c-6-start)] text-xs font-bold uppercase tracking-widest mb-8">
                       <Shield className="w-3 h-3" />
                       Administrator
                     </div>
                   )}
 
                   <div className="space-y-3">
+                    {isAdmin && (
+                      <button 
+                        onClick={() => router.push('/admin')}
+                        className="w-full py-4 btn-metallic-blue flex items-center justify-center gap-2"
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        Admin Dashboard
+                      </button>
+                    )}
                     <button 
                       onClick={() => setIsEditing(!isEditing)}
                       className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
@@ -181,9 +195,9 @@ const Profile = () => {
                     {isEditing ? (
                       <motion.form
                         key="edit"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
+                        initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, y: 10 }}
+                        animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                        exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, y: -10 }}
                         onSubmit={handleUpdateProfile}
                         className="space-y-6"
                       >
@@ -204,7 +218,7 @@ const Profile = () => {
                             type="text"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-amber-500/50 transition-all text-white"
+                            className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-[var(--c-6-start)]/50 transition-all text-white"
                           />
                         </div>
 
@@ -218,7 +232,7 @@ const Profile = () => {
                         <button 
                           type="submit"
                           disabled={loading}
-                          className="w-full py-5 bg-amber-500 text-black font-bold rounded-2xl hover:bg-amber-400 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 disabled:opacity-50"
+                          className="w-full py-5 btn-metallic-blue flex items-center justify-center gap-2"
                         >
                           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
                         </button>
@@ -226,9 +240,9 @@ const Profile = () => {
                     ) : (
                       <motion.div
                         key="view"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
+                        initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, y: 10 }}
+                        animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                        exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, y: -10 }}
                         className="space-y-12"
                       >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -238,14 +252,14 @@ const Profile = () => {
                           </div>
                           <div className="p-8 rounded-3xl bg-white/5 border border-white/5">
                             <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Member Status</p>
-                            <p className={isMember ? "text-amber-500 font-bold" : "text-zinc-500 font-medium"}>
+                            <p className={isMember ? "text-[var(--c-6-start)] font-bold" : "text-zinc-500 font-medium"}>
                               {isMember ? "Verified Member" : "Not Registered"}
                             </p>
                           </div>
                           {isMember && (
                             <div className="p-8 rounded-3xl bg-white/5 border border-white/5">
                               <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Payment Status</p>
-                              <p className={`font-bold ${verified === 'yes' ? 'text-green-500' : 'text-amber-500'}`}>
+                              <p className={`font-bold ${verified === 'yes' ? 'text-green-500' : 'text-[var(--c-6-start)]'}`}>
                                 {verified === 'yes' ? 'Paid' : 'Verifying'}
                               </p>
                             </div>
@@ -259,11 +273,11 @@ const Profile = () => {
                 {/* Registration Link */}
                 {!isMember && !checkingMember && (
                   <div className="p-8 md:p-12 rounded-[40px] bg-white/[0.03] border border-white/10 backdrop-blur-xl mt-8 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-[80px] -mr-32 -mt-32 group-hover:bg-amber-500/10 transition-colors duration-700" />
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--c-6-start)]/5 rounded-full blur-[80px] -mr-32 -mt-32 group-hover:bg-[var(--c-6-start)]/10 transition-colors duration-700" />
                     
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                       <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 rounded-3xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20">
+                        <div className="w-16 h-16 rounded-3xl bg-[var(--c-6-start)]/10 flex items-center justify-center text-[var(--c-6-start)] border border-[var(--c-6-start)]/20">
                           <Edit3 className="w-8 h-8" />
                         </div>
                         <div>
@@ -276,7 +290,7 @@ const Profile = () => {
                         href="/register-member" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="px-8 py-5 bg-amber-500 text-black font-bold uppercase tracking-[0.2em] text-xs rounded-2xl hover:bg-amber-400 transition-all flex items-center gap-3 shadow-xl shadow-amber-500/20 group/btn whitespace-nowrap"
+                        className="px-8 py-5 btn-metallic-blue flex items-center gap-3 group/btn whitespace-nowrap"
                       >
                         Register Now
                         <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -286,9 +300,9 @@ const Profile = () => {
                 )}
 
                 {isMember && (
-                  <div className="p-8 md:p-12 rounded-[40px] bg-amber-500/5 border border-amber-500/10 backdrop-blur-xl mt-8">
+                  <div className="p-8 md:p-12 rounded-[40px] bg-[var(--c-6-start)]/5 border border-[var(--c-6-start)]/10 backdrop-blur-xl mt-8">
                     <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 rounded-full bg-amber-500 flex items-center justify-center text-black">
+                      <div className="w-16 h-16 rounded-full bg-[var(--c-6-start)] flex items-center justify-center text-white">
                         <CheckCircle2 className="w-8 h-8" />
                       </div>
                       <div>

@@ -15,6 +15,9 @@ import { useToast } from '../../context/ToastContext';
 import { DashboardSection } from './DashboardSection';
 import { DashboardButton } from './DashboardButton';
 import { DashboardFormField } from './DashboardFormField';
+import { usePerformance } from '../../hooks/usePerformance';
+
+import { Skeleton } from '../Skeleton';
 
 export const UserManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -24,6 +27,7 @@ export const UserManagement = () => {
   const [promoting, setPromoting] = useState(false);
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const { shouldReduceGfx } = usePerformance();
 
   const fetchUsers = async () => {
     if (!isSupabaseConfigured) return;
@@ -166,12 +170,15 @@ export const UserManagement = () => {
             </thead>
             <tbody className="divide-y divide-white/5">
               {loading ? (
-                <tr>
-                  <td colSpan={4} className="px-8 py-20 text-center">
-                    <Loader2 className="w-8 h-8 text-amber-500 animate-spin mx-auto mb-4" />
-                    <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Fetching user database...</p>
-                  </td>
-                </tr>
+                [1, 2, 3, 4, 5].map((i) => (
+                  <tr key={i}>
+                    <td className="px-8 py-6"><Skeleton className="h-10 w-48 rounded-full" /></td>
+                    <td className="px-8 py-6"><Skeleton className="h-4 w-32" /></td>
+                    <td className="px-8 py-6"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-8 py-6"><Skeleton className="h-6 w-20 rounded-full" /></td>
+                    <td className="px-8 py-6 text-right"><Skeleton className="h-8 w-24 rounded-xl ml-auto" /></td>
+                  </tr>
+                ))
               ) : filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-8 py-20 text-center text-zinc-500">
@@ -218,7 +225,7 @@ export const UserManagement = () => {
                         }`}
                       >
                         {updatingUser === user.id ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <Loader2 className={`w-3 h-3 ${shouldReduceGfx ? '' : 'animate-spin'}`} />
                         ) : user.role === 'admin' ? (
                           'Revoke Admin'
                         ) : (

@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { LucideIcon } from 'lucide-react';
+import { usePerformance } from '../../hooks/usePerformance';
 
 interface DashboardButtonProps {
   onClick: (e: React.MouseEvent) => void;
@@ -22,8 +23,10 @@ export const DashboardButton: React.FC<DashboardButtonProps> = ({
   className = '',
   disabled = false
 }) => {
+  const { shouldReduceGfx } = usePerformance();
+
   const variants = {
-    primary: 'bg-amber-500 text-black hover:bg-amber-400 shadow-lg shadow-amber-500/10',
+    primary: 'bg-gradient-to-b from-[#00B4DB] to-[#162E65] text-white shadow-lg shadow-[#00B4DB]/20 border border-white/10',
     secondary: 'bg-white/5 text-white hover:bg-white/10 border border-white/5',
     danger: 'bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/10',
     ghost: 'bg-transparent text-zinc-500 hover:text-white hover:bg-white/5'
@@ -37,8 +40,8 @@ export const DashboardButton: React.FC<DashboardButtonProps> = ({
 
   return (
     <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={shouldReduceGfx ? {} : { scale: 1.02 }}
+      whileTap={shouldReduceGfx ? {} : { scale: 0.98 }}
       onClick={onClick}
       disabled={disabled}
       className={`

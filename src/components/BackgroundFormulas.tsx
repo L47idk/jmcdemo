@@ -40,8 +40,8 @@ class Formula {
     this.y = Math.random() * height;
     this.opacity = 0;
     this.targetOpacity = 0;
-    this.fadeSpeed = 0.003 + Math.random() * 0.007;
-    this.fontSize = 150 + Math.random() * 200; // Even larger
+    this.fadeSpeed = 0.01 + Math.random() * 0.02;
+    this.fontSize = 20 + Math.random() * 30; // Much smaller, subtle size
     this.rotation = (Math.random() - 0.5) * 0.2;
     this.state = 'hidden';
     this.timer = 0;
@@ -49,8 +49,8 @@ class Formula {
     this.height = 0;
   }
 
-  calculateBounds(ctx: CanvasRenderingContext2D) {
-    ctx.font = `${this.fontSize}px var(--font-handwritten), cursive`;
+  calculateBounds(ctx: CanvasRenderingContext2D, fontFamily: string) {
+    ctx.font = `${this.fontSize}px ${fontFamily}`;
     const metrics = ctx.measureText(this.text);
     this.width = metrics.width;
     this.height = this.fontSize;
@@ -85,16 +85,16 @@ class Formula {
     return false;
   }
 
-  update(width: number, height: number, others: Formula[], ctx: CanvasRenderingContext2D) {
+  update(width: number, height: number, others: Formula[], ctx: CanvasRenderingContext2D, fontFamily: string) {
     if (this.state === 'hidden') {
-      if (Math.random() < 0.01) { // Increased spawn rate
-        for (let attempt = 0; attempt < 20; attempt++) {
+      if (Math.random() < 0.01) { // Balanced spawn rate for faster fading
+        for (let attempt = 0; attempt < 50; attempt++) {
           this.x = Math.random() * (width - this.width - 100) + 50;
           this.y = Math.random() * (height - 150) + 100;
-          this.calculateBounds(ctx);
+          this.calculateBounds(ctx, fontFamily);
           if (!this.checkOverlap(others)) {
             this.state = 'fading-in';
-            this.targetOpacity = 0.25 + Math.random() * 0.25;
+            this.targetOpacity = 0.2 + Math.random() * 0.2; // More visible
             break;
           }
         }
@@ -104,7 +104,7 @@ class Formula {
       if (this.opacity >= this.targetOpacity) {
         this.opacity = this.targetOpacity;
         this.state = 'visible';
-        this.timer = 150 + Math.random() * 400;
+        this.timer = 50 + Math.random() * 100;
       }
     } else if (this.state === 'visible') {
       this.timer--;
@@ -121,19 +121,19 @@ class Formula {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(ctx: CanvasRenderingContext2D, fontFamily: string) {
     if (this.opacity <= 0) return;
 
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rotation);
-    ctx.globalAlpha = this.opacity * 2; // Further increased visibility
+    ctx.globalAlpha = this.opacity; // Subtle visibility
     ctx.fillStyle = '#F59E0B'; // Amber-500
-    ctx.font = `${this.fontSize}px var(--font-handwritten), cursive`;
+    ctx.font = `${this.fontSize}px ${fontFamily}`;
     
     // Add stronger glow effect
-    ctx.shadowBlur = 35;
-    ctx.shadowColor = 'rgba(245, 158, 11, 0.8)';
+    ctx.shadowBlur = 25;
+    ctx.shadowColor = 'rgba(245, 158, 11, 0.5)';
     
     ctx.fillText(this.text, 0, 0);
     ctx.restore();
@@ -152,22 +152,34 @@ const BackgroundFormulas = () => {
 
     let animationFrameId: number;
     let formulaObjects: Formula[] = [];
+    let cachedFontFamily = 'Caveat, cursive';
+
+    const updateFont = () => {
+      cachedFontFamily = getComputedStyle(document.body).getPropertyValue('--font-handwritten') || 'Caveat, cursive';
+    };
 
     const init = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.scale(dpr, dpr);
+      updateFont();
       
       // Create a pool of formulas
-      formulaObjects = Array.from({ length: 40 }).map(() => new Formula(canvas.width, canvas.height));
+      formulaObjects = Array.from({ length: 12 }).map(() => new Formula(window.innerWidth, window.innerHeight));
     };
 
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.scale(dpr, dpr);
+      updateFont();
+      
       // Re-init positions on resize
       formulaObjects.forEach(f => {
-        f.x = Math.random() * canvas.width;
-        f.y = Math.random() * canvas.height;
+        f.x = Math.random() * window.innerWidth;
+        f.y = Math.random() * window.innerHeight;
       });
     };
 
@@ -178,8 +190,8 @@ const BackgroundFormulas = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       formulaObjects.forEach(f => {
-        f.update(canvas.width, canvas.height, formulaObjects, ctx);
-        f.draw(ctx);
+        f.update(window.innerWidth, window.innerHeight, formulaObjects, ctx, cachedFontFamily);
+        f.draw(ctx, cachedFontFamily);
       });
 
       animationFrameId = requestAnimationFrame(animate);

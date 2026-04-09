@@ -9,13 +9,14 @@ import MathVisualizations from "@/components/MathVisualizations";
 import StarField from "@/components/StarField";
 import SplashScreen from "@/components/SplashScreen";
 import FloatingSidebar from "@/components/FloatingSidebar";
-import CustomCursor from "@/components/CustomCursor";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Footer from "@/components/Footer";
+import { usePerformance } from "@/hooks/usePerformance";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const { loading, content } = useContent();
   const [splashFinished, setSplashFinished] = useState(false);
+  const { shouldReduceGfx } = usePerformance();
 
   return (
     <AnimatePresence mode="wait">
@@ -29,9 +30,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       ) : (
         <motion.div
           key="content"
-          initial={{ opacity: 0 }}
+          initial={shouldReduceGfx ? { opacity: 1 } : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
+          transition={{ duration: shouldReduceGfx ? 0.3 : 1 }}
           className="min-h-screen flex flex-col relative overflow-hidden"
         >
           {/* Atmospheric Background */}
@@ -40,10 +41,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-indigo-500/5" />
           </div>
 
-          <StarField />
-          <CustomCursor />
-          <MathVisualizations />
-          <BackgroundFormulas />
+          {!shouldReduceGfx && (
+            <>
+              <StarField />
+              <MathVisualizations />
+              <BackgroundFormulas />
+            </>
+          )}
+          
           <Navbar />
           <FloatingSidebar />
           <main className="flex-grow relative z-10">

@@ -1,4 +1,6 @@
 {
+  "lastUpdated": "2026-04-08T00:56:00Z",
+  "_instruction": "Update 'lastUpdated' whenever you manually edit this file to ensure changes take precedence over the admin panel.",
   "home": {
     "heroTitle": "Josephite Math Club",
     "heroSubtitle": "Where logic meets creativity to solve the world's most beautiful problems.",
@@ -177,25 +179,25 @@
       {
         "role": "Chief Moderator",
         "name": "Anthony Prince Costa",
-        "imageUrl": "/images/members/anthony.jpg",
+        "imageUrl": "/images/members/anthony.png",
         "id": "root-panel-moderators-0-dfc4k23hf"
       },
       {
         "role": "Moderator",
         "name": "Ashim Halder",
-        "imageUrl": "/images/members/intesher.jpg",
+        "imageUrl": "/images/members/ashim.png",
         "id": "root-panel-moderators-1-209b2rqxo"
       },
       {
         "role": "Moderator",
         "name": "Dipak Kumar Sarkar",
-        "imageUrl": "/images/members/shoumik.jpg",
+        "imageUrl": "/images/members/dipak.png",
         "id": "root-panel-moderators-2-4litfrluq"
       },
       {
         "role": "Moderator",
         "name": "Israt Jahan Akhi",
-        "imageUrl": "/images/members/monwar.jpg",
+        "imageUrl": "/images/members/akhi.png",
         "id": "root-panel-moderators-3-uq539p2y1"
       }
     ],
@@ -204,8 +206,8 @@
         "president": [
           {
             "role": "President",
-            "name": "Tawhid Bin Omar",
-            "imageUrl": "/images/members/intesher.jpg",
+            "name": "Intesher Alam Manam",
+            "imageUrl": "/images/members/intesher.png",
             "id": "root-panel-executive-current-president-0-bftg3lph8"
           }
         ],
@@ -213,13 +215,13 @@
           {
             "role": "Deputy President",
             "name": "Monwar Rafat",
-            "imageUrl": "/images/members/monwar.jpg",
+            "imageUrl": "/images/members/monwar.png",
             "id": "root-panel-executive-current-deputyPresidents-0-jlrznl869"
           },
           {
             "role": "Deputy President",
-            "name": "Arefin Anwar",
-            "imageUrl": "/images/members/arefin.jpg",
+            "name": "Tahmid Tahsan Pranto",
+            "imageUrl": "/images/members/panel_26/tahmid_tahsan_pranto.png",
             "id": "root-panel-executive-current-deputyPresidents-1-ajkkccs7m"
           }
         ],
@@ -227,113 +229,113 @@
           {
             "role": "General Secretary",
             "name": "Shoumik Saha Raj",
-            "imageUrl": "/images/members/shoumik.jpg",
+            "imageUrl": "/images/members/shoumik.png",
             "id": "root-panel-executive-current-generalSecretary-0-qrtly2v8v"
           }
         ],
         "vicePresidents": [
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Protoy Nandi Ramya",
+            "imageUrl": "/images/members/panel_26/protoy_nandi_ramya.png",
             "id": "root-panel-executive-current-vicePresidents-0-43rgkkstc"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Arefin Anwar",
+            "imageUrl": "/images/members/arefin.png",
             "id": "root-panel-executive-current-vicePresidents-1-u8sastbr7"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Oyshworzo Ashad Dipto",
+            "imageUrl": "/images/members/panel_26/oyshworzo_ashad-dipto.png",
             "id": "root-panel-executive-current-vicePresidents-2-3a5zwf0pg"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Asif Ahmed Tamim",
+            "imageUrl": "/images/members/panel_26/asif_ahmed-tamim.png",
             "id": "root-panel-executive-current-vicePresidents-3-zdv6oyiq2"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Addahy Bakali Kabbay",
+            "imageUrl": "/images/member/panel_26/addahy-bakali-kabbay.png",
             "id": "root-panel-executive-current-vicePresidents-4-meectr1sm"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Sayeeb Safwan",
+            "imageUrl": "/images/member/panel_26/sayeeb_safwan.png",
             "id": "root-panel-executive-current-vicePresidents-5-121ca00xz"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Tapantor Das",
+            "imageUrl": "/images/member/panel_26/tapantar_das.png",
             "id": "root-panel-executive-current-vicePresidents-6-s45vzde36"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Imtiaz Nasif Nur",
+            "imageUrl": "/images/member/panel_26/imtiaz_nasif_nur.png",
             "id": "root-panel-executive-current-vicePresidents-7-q1e1ay76z"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Fardin Alam Niloy",
+            "imageUrl": "/images/member/panel_26/fardin_alam_niloy.png",
             "id": "root-panel-executive-current-vicePresidents-8-jg4qskgcj"
           },
           {
             "role": "Vice President",
-            "name": "",
-            "imageUrl": "",
+            "name": "Emmanuel Gosal",
+            "imageUrl": "/images/member/panel_26/emmanuel_gosal.png",
             "id": "root-panel-executive-current-vicePresidents-9-564war86d"
           }
         ],
         "departments": [
           {
             "dept": "Internal Affairs",
-            "name": "",
-            "imageUrl": "",
+            "name": "Utkorsho Mistry Shouvik",
+            "imageUrl": "/images/member/panel_26/utkorsho_mistry_shouvik.png",
             "id": "root-panel-executive-current-departments-0-jvokd06j7"
           },
           {
             "dept": "External Affairs",
-            "name": "",
-            "imageUrl": "",
+            "name": "Mahatab Hossain Zihan",
+            "imageUrl": "/images/member/panel_26/mahtab_hossain_zihan.png",
             "id": "root-panel-executive-current-departments-1-wmxu3e39i"
           },
           {
             "dept": "Photography",
-            "name": "",
-            "imageUrl": "",
+            "name": "Shirsha Roy",
+            "imageUrl": "/images/member/panel_26/shirsho_roy.png",
             "id": "root-panel-executive-current-departments-2-lqeyvngpi"
           },
           {
             "dept": "Events",
-            "name": "",
-            "imageUrl": "",
+            "name": "Ahnaf Abeed",
+            "imageUrl": "/images/members/panel_26/ahnaf_abeed.png",
             "id": "root-panel-executive-current-departments-3-moogq90ym"
           },
           {
             "dept": "Writings",
-            "name": "",
-            "imageUrl": "",
+            "name": "Shafayet Azmayeen",
+            "imageUrl": "/images/member/panel_26/shafayet_azmayeen.png",
             "id": "root-panel-executive-current-departments-4-dobiwqibp"
           },
           {
             "dept": "Equity",
-            "name": "",
-            "imageUrl": "",
+            "name": "Hosain Istiyake Antor",
+            "imageUrl": "/images/member/panel_26/hossain_istiyake_antor.png",
             "id": "root-panel-executive-current-departments-5-7w4fpdsmr"
           },
           {
             "dept": "Decoration",
-            "name": "",
-            "imageUrl": "",
+            "name": "Mahi Bareed Noor",
+            "imageUrl": "/images/member/panel_26/mahi_bareed_noor.png",
             "id": "root-panel-executive-current-departments-6-4fpn403eq"
           }
         ],
@@ -341,6 +343,7 @@
           "asstGeneralSecretary": [
             {
               "name": "Kazi Nafisul Bashar",
+              "imageUrl": "",
               "id": "root-panel-executive-current-secretaries-asstGeneralSecretary-0-sq4u09xq4"
             },
             {
@@ -387,6 +390,7 @@
           "jointSecretary": [
             {
               "name": "Swapnil Podder",
+              "imageUrl": "",
               "id": "root-panel-executive-current-secretaries-jointSecretary-0-5pd2hw7a5"
             },
             {
@@ -429,6 +433,7 @@
           "organizingSecretary": [
             {
               "name": "Shuvro",
+              "imageUrl": "",
               "id": "root-panel-executive-current-secretaries-organizingSecretary-0-zfnitqitn"
             },
             {
@@ -455,6 +460,7 @@
           "correspondingSecretary": [
             {
               "name": "Farhan",
+              "imageUrl": "",
               "id": "root-panel-executive-current-secretaries-correspondingSecretary-0-5m9ojg8tp"
             },
             {
@@ -488,7 +494,7 @@
         "president": [
           {
             "role": "President",
-            "name": "Intesher Alam Manam",
+            "name": "Ziyad Mohammad",
             "imageUrl": "",
             "id": "root-panel-executive-recent-president-0-zpdlhoo5x"
           }
@@ -496,20 +502,20 @@
         "deputyPresidents": [
           {
             "role": "Deputy President",
-            "name": "Monwar Rafat",
+            "name": "Rafiu Mohammad Mosharrof",
             "imageUrl": "",
             "id": "root-panel-executive-recent-deputyPresidents-0-un29kwc62"
           },
           {
             "role": "Deputy President",
-            "name": "Tahmid Tahsan Pranto",
+            "name": "Shawon Rahman",
             "imageUrl": "",
             "id": "root-panel-executive-recent-deputyPresidents-1-fjwypazce"
           }
         ],
         "generalSecretary": [
           {
-            "role": "General Secretary",
+            "role": "Tahsin Ahnaf Mahir",
             "name": "Shoumik Saha Raj",
             "imageUrl": "",
             "id": "root-panel-executive-recent-generalSecretary-0-5vb375vtw"
@@ -518,110 +524,105 @@
         "vicePresidents": [
           {
             "role": "Vice President",
-            "name": "Protoy Nandi Ramya",
+            "name": "Al Sahad",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-0-hxfi36fjk"
           },
           {
             "role": "Vice President",
-            "name": "Arefin Anwar",
+            "name": "Arafat Karim Rahat",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-1-55u5xmfl5"
           },
           {
             "role": "Vice President",
-            "name": "Oyshworzo Ashad Dipto",
+            "name": "Muhammed Ayman",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-2-cm97stvkj"
           },
           {
             "role": "Vice President",
-            "name": "Asif Ahmed Tamim",
+            "name": "Nayer Sharar",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-3-rpbkr95ce"
           },
           {
             "role": "Vice President",
-            "name": "Addahy Bakali Kabbay",
+            "name": "Nilay Dutta",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-4-dondx25aa"
           },
           {
             "role": "Vice President",
-            "name": "Sayeeb Safwan",
+            "name": "Priangshu Deb",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-5-dwbvauedg"
           },
           {
             "role": "Vice President",
-            "name": "Tapantor Das",
+            "name": "Sanan Sikder",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-6-a0qh5fofw"
           },
           {
             "role": "Vice President",
-            "name": "Imtiaz Nasif Nur",
+            "name": "Tawhid-Bin-Omar",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-7-2stmm9hgd"
           },
           {
             "role": "Vice President",
-            "name": "Fardin Alam Niloy",
+            "name": "Tayebur Naseef",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-8-aszv850mu"
           },
           {
             "role": "Vice President",
-            "name": "Emmanuel Gosal",
+            "name": "Ziad Bin Azad",
             "imageUrl": "",
             "id": "root-panel-executive-recent-vicePresidents-9-nfmfxyida"
-          },
-          {
-            "name": "Saqeef Mihran Sabir",
-            "role": "Vice Presidents",
-            "imageUrl": ""
           }
         ],
         "departments": [
           {
             "dept": "Internal Affairs",
-            "name": "Utkorsho Mistry Shouvik",
+            "name": "N/A",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-0-jkt7iocag"
           },
           {
             "dept": "External Affairs",
-            "name": "Mahatab Hossain Zihan",
+            "name": "N/A",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-1-79gllwxx8"
           },
           {
             "dept": "Photography",
-            "name": "Shirsha Roy",
+            "name": "N/A",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-2-6aftb3s3w"
           },
           {
             "dept": "Events",
-            "name": "Ahnaf Abeed",
+            "name": "N/A",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-3-jxm3gyo54"
           },
           {
             "dept": "Writings",
-            "name": "Shafayet Azmayeen",
+            "name": "N/A",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-4-2vdvgnt4p"
           },
           {
             "dept": "Equity",
-            "name": "Hosain Istiyake Antor",
+            "name": "N/A",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-5-olh6dbuc4"
           },
           {
             "dept": "Decoration",
-            "name": "Mahi Bareed Noor",
+            "name": "N/A",
             "imageUrl": "",
             "id": "root-panel-executive-recent-departments-6-d2unmyto6"
           }
@@ -629,145 +630,145 @@
         "secretaries": {
           "asstGeneralSecretary": [
             {
-              "name": "Kazi Nafisul Bashar",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-0-og93d3bw4"
             },
             {
-              "name": "Tahmid Muhsin Taqi",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-1-qlby7xf64"
             },
             {
-              "name": "Tawsif Hamid Abir",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-2-hor0n3jmm"
             },
             {
-              "name": "Shougoto Saha",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-3-gft405kzm"
             },
             {
-              "name": "Mahdi Rasif",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-4-rztcb9m97"
             },
             {
-              "name": "Arefin Alam Tanjim",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-5-az18txwc7"
             },
             {
-              "name": "Tauhidur Rahman",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-6-xiz0chf4s"
             },
             {
-              "name": "Zulkarnain Zaman Aarosh",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-7-qzqz9avkm"
             },
             {
-              "name": "Sindid Alam",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-8-tgt9iqfm4"
             },
             {
-              "name": "Muhtadee Tausif Hasan Adib",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-9-s04exm6tx"
             },
             {
-              "name": "MD Jarif Bin Hossain",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-asstGeneralSecretary-10-2qd2zgpd7"
             }
           ],
           "jointSecretary": [
             {
-              "name": "Swapnil Podder",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-0-pjd7xwcxl"
             },
             {
-              "name": "Ragib Ash Add",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-1-ay8113sj3"
             },
             {
-              "name": "Md. Nazmus Sakib",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-2-fhfkj5z25"
             },
             {
-              "name": "Ajmol Fahim",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-3-k7mhxaipq"
             },
             {
-              "name": "Probaho Kul Sanchalon Minhaz",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-4-epbfmiyg6"
             },
             {
-              "name": "Shuvashish Saha",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-5-0k1m2u41f"
             },
             {
-              "name": "S M Abir",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-6-7p4ajo1w0"
             },
             {
-              "name": "Tasdid Alam Ratul",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-7-57zdzquit"
             },
             {
-              "name": "Raiyan Nafir Rhythm",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-8-n7itg746v"
             },
             {
-              "name": "Sameer Saihan",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-jointSecretary-9-x8dbni5p7"
             }
           ],
           "organizingSecretary": [
             {
-              "name": "Shuvro",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-0-fb59u0skk"
             },
             {
-              "name": "Riyad Miah",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-1-qc6fzfzpp"
             },
             {
-              "name": "Krrish",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-2-x1fkobbll"
             },
             {
-              "name": "Sadman",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-3-vy35gduwc"
             },
             {
-              "name": "Walid Pathan",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-4-xgvcrsxun"
             },
             {
-              "name": "Shirsendu Das",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-organizingSecretary-5-bnegiu1x1"
             }
           ],
           "correspondingSecretary": [
             {
-              "name": "Farhan",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-0-og4sqawvx"
             },
             {
-              "name": "Mashnoon",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-1-qcn5iflm8"
             },
             {
-              "name": "Oliver",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-2-y39pppa1c"
             },
             {
-              "name": "Shuvro Aninda Bepari",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-3-et5xkfctf"
             },
             {
-              "name": "Saraf Islam Nuhil",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-4-kvgl1k8b7"
             },
             {
-              "name": "Tahmid",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-5-fxlxdc1g3"
             },
             {
-              "name": "Al Wasif",
+              "name": "N/A",
               "id": "root-panel-executive-recent-secretaries-correspondingSecretary-6-uy3vyuif7"
             }
           ]
@@ -1085,36 +1086,7 @@
         "icon": "Users"
       }
     ],
-    "events": [
-      {
-        "id": "event-1774272297034",
-        "title": "Math olympiad",
-        "category": "Olympiad",
-        "date": "20274-03-31",
-        "time": "10:50pm",
-        "location": "St. joseph campus",
-        "description": "Join it",
-        "imageUrl": "",
-        "link": "",
-        "buttonText": "Register Now",
-        "registrationLink": "https://forms.gle/example",
-        "tag": "important"
-      },
-      {
-        "id": "event-1774272334424",
-        "title": "Math Workshop",
-        "category": "Workshop",
-        "date": "2026-04-15",
-        "time": "4:00pm",
-        "location": "Auditorium",
-        "description": "A deep dive into calculus.",
-        "imageUrl": "",
-        "link": "",
-        "buttonText": "Join Workshop",
-        "registrationLink": "",
-        "tag": "general"
-      }
-    ]
+    "events": []
   },
   "gallery": {
     "images": [
@@ -1152,27 +1124,15 @@
         "icon": "CheckCircle"
       }
     ],
-    "notices": [
-      {
-        "id": "notice-1772615072128-7565bb9hx",
-        "title": "fds",
-        "content": "afsadf",
-        "date": "2026-03-04",
-        "imageUrl": "https://gqcwzxnuawpfqvrukcmn.supabase.co/storage/v1/object/public/image/1772615075793-3.pdf",
-        "link": "",
-        "linkText": "View Details",
-        "tag": "general"
-      }
-    ]
+    "notices": []
   },
   "contact": {
     "email": "hello@josephitemath.club",
     "phone": "+880 1712-345678",
     "location": "St. Joseph's Campus, Math Wing",
     "socials": {
-      "facebook": "https://facebook.com/josephitemathclub",
-      "instagram": "https://instagram.com/josephitemathclub",
-      "linkedin": ""
+      "facebook": "https://www.facebook.com/2015JMC/",
+      "instagram": "https://www.instagram.com/jmc_.official/"
     }
   },
   "registration": {
@@ -1184,6 +1144,16 @@
       "Enter the registration fee amount",
       "Copy the Transaction ID (TrxID) and enter it below"
     ],
-    "cashInstructions": "Please pay your registration fee to the club treasurer."
+    "cashInstructions": "Please pay your registration fee to the club treasurer.",
+    "declaration": "I am willing to join the Josephite Math Club, I promise to perform my duties with honesty, respect the club values, and work for its development"
+  },
+  "gallery_page": {
+    "images": []
+  },
+  "members_list": {
+    "title": "OUR MEMBERS",
+    "subtitle": "COMMUNITY",
+    "description": "The heartbeat of Josephite Math Club - our diverse and passionate community of mathematicians.",
+    "members": []
   }
 }

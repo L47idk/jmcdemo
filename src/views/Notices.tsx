@@ -4,13 +4,37 @@ import { motion } from 'framer-motion';
 import { Bell, Calendar, Pin, ArrowRight, Search, Filter, Info, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import ScrollReveal from '../components/ScrollReveal';
+import { Skeleton } from '../components/Skeleton';
+
+import { usePerformance } from '../hooks/usePerformance';
+
+const NoticesSkeleton = () => (
+  <div className="min-h-screen bg-[#050505] pt-40">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mb-24">
+        <Skeleton className="h-4 w-32 mb-8" />
+        <Skeleton className="h-24 w-3/4 mb-6" />
+        <Skeleton className="h-24 w-1/2 mb-12" />
+        <Skeleton className="h-6 w-2/3" />
+      </div>
+      <div className="space-y-8">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-64 rounded-[2.5rem]" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const Notices = () => {
-  const { content } = useContent();
+  const { content, loading } = useContent();
   const noticesContent = content?.notices || {};
   const notices = noticesContent.notices || [];
   const [filter, setFilter] = React.useState('all');
   const [search, setSearch] = React.useState('');
+  const { shouldReduceGfx } = usePerformance();
+
+  if (loading) return <NoticesSkeleton />;
 
   const filteredNotices = notices.filter((n: any) => {
     const matchesFilter = filter === 'all' || n.type?.toLowerCase() === filter.toLowerCase();
@@ -31,8 +55,12 @@ const Notices = () => {
   return (
     <div className="relative min-h-screen bg-[#050505] overflow-hidden">
       {/* Background Glows */}
-      <div className="atmospheric-glow w-[500px] h-[500px] bg-amber-500/5 -top-48 -left-24" />
-      <div className="atmospheric-glow w-[600px] h-[600px] bg-indigo-500/5 bottom-0 -right-24" />
+      {!shouldReduceGfx && (
+        <>
+          <div className="atmospheric-glow w-[500px] h-[500px] bg-[var(--c-6-start)]/5 -top-48 -left-24" />
+          <div className="atmospheric-glow w-[600px] h-[600px] bg-[var(--c-2-start)]/5 bottom-0 -right-24" />
+        </>
+      )}
 
       <div className="pt-40 pb-32 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,16 +69,16 @@ const Notices = () => {
           <ScrollReveal>
             <div className="max-w-5xl mb-24">
               <div className="flex items-center gap-4 mb-8">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-amber-500/80">{noticesContent.subtitle || 'ANNOUNCEMENTS'}</span>
+                <Sparkles className="w-5 h-5 text-[var(--c-6-start)]" />
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[var(--c-6-start)]/80">{noticesContent.subtitle || 'ANNOUNCEMENTS'}</span>
               </div>
               <h1 className="text-7xl md:text-[9rem] font-display font-bold leading-[0.85] tracking-tighter mb-12">
                 {noticesContent.title?.split(' ').map((word: string, i: number) => (
-                  <span key={i} className={i === 1 ? 'gold-text' : 'block'}>{word} </span>
+                  <span key={i} className={i === 1 ? 'blue-text' : 'block'}>{word} </span>
                 )) || (
                   <>
                     <span className="block">NOTICE</span>
-                    <span className="gold-text">BOARD</span>
+                    <span className="blue-text">BOARD</span>
                   </>
                 )}
               </h1>
@@ -71,14 +99,20 @@ const Notices = () => {
                     <button
                       key={cat.id}
                       onClick={() => setFilter(cat.id)}
-                      className={`px-8 py-4 rounded-full text-[10px] uppercase tracking-widest font-bold flex items-center gap-3 transition-all duration-500 border ${
+                      className={`px-8 py-4 rounded-full text-[10px] uppercase tracking-widest font-bold flex items-center gap-3 transition-all duration-500 border relative overflow-hidden group/cat ${
                         filter === cat.id 
-                          ? 'bg-amber-500 text-black border-amber-500 shadow-xl shadow-amber-500/20' 
+                          ? 'text-white border-transparent shadow-xl shadow-[var(--c-6-start)]/20' 
                           : 'bg-white/5 text-zinc-500 border-white/10 hover:bg-white/10 hover:text-white'
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
-                      {cat.name}
+                      {filter === cat.id && (
+                        <motion.div 
+                          layoutId="activeCatNotice"
+                          className="absolute inset-0 bg-gradient-to-br from-[var(--c-6-start)] to-[var(--c-6-end)] -z-0"
+                        />
+                      )}
+                      <Icon className="w-4 h-4 relative z-10" />
+                      <span className="relative z-10">{cat.name}</span>
                     </button>
                   );
                 })}
@@ -87,13 +121,13 @@ const Notices = () => {
 
             <ScrollReveal direction="right">
               <div className="relative w-full lg:w-96 group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-amber-500 transition-colors" />
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-[var(--c-6-start)] transition-colors" />
                 <input 
                   type="text"
                   placeholder="SEARCH NOTICES..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-16 pr-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all text-white placeholder:text-zinc-600 font-bold text-[10px] tracking-widest uppercase"
+                  className="w-full pl-16 pr-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-[var(--c-6-start)]/50 focus:ring-4 focus:ring-[var(--c-6-start)]/10 transition-all text-white placeholder:text-zinc-600 font-bold text-[10px] tracking-widest uppercase"
                 />
               </div>
             </ScrollReveal>
@@ -103,15 +137,15 @@ const Notices = () => {
           <div className="grid grid-cols-1 gap-8">
             {filteredNotices.length > 0 ? (
               filteredNotices.map((notice: any, i: number) => (
-                <ScrollReveal key={i} delay={i * 0.05}>
-                  <div className={`group relative p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-amber-500/30 transition-all duration-500 overflow-hidden ${notice.isPinned ? 'border-amber-500/20 bg-amber-500/[0.02]' : ''}`}>
+                <ScrollReveal key={i} delay={shouldReduceGfx ? 0 : i * 0.05}>
+                  <div className={`group relative p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 ${!shouldReduceGfx && 'hover:border-[var(--c-6-start)]/30 transition-all duration-500'} overflow-hidden ${notice.isPinned ? 'border-[var(--c-6-start)]/20 bg-[var(--c-6-start)]/[0.02]' : ''}`}>
                     {notice.isPinned && (
                       <div className="absolute top-8 right-8">
-                        <Pin className="w-5 h-5 text-amber-500 fill-amber-500" />
+                        <Pin className="w-5 h-5 text-[var(--c-6-start)] fill-[var(--c-6-start)]" />
                       </div>
                     )}
                     <div className="flex flex-col md:flex-row md:items-start gap-12 relative z-10">
-                      <div className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-amber-500/10 text-amber-500 border border-amber-500/20 group-hover:scale-105 transition-transform duration-500">
+                      <div className={`flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-[var(--c-6-start)]/10 text-[var(--c-6-start)] border border-[var(--c-6-start)]/20 ${!shouldReduceGfx && 'group-hover:scale-105 transition-transform duration-500'}`}>
                         <Calendar className="w-8 h-8 mb-2" />
                         <div className="text-[10px] font-bold uppercase tracking-[0.2em]">{notice.date?.split(' ')[0]}</div>
                       </div>
@@ -127,7 +161,7 @@ const Notices = () => {
                           </span>
                           <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{notice.date}</span>
                         </div>
-                        <h3 className="text-3xl md:text-4xl font-display font-bold mb-6 group-hover:text-amber-500 transition-colors leading-tight">{notice.title}</h3>
+                        <h3 className="text-3xl md:text-4xl font-display font-bold mb-6 group-hover:text-[var(--c-6-start)] transition-colors leading-tight">{notice.title}</h3>
                         <p className="text-xl text-zinc-500 leading-relaxed mb-10 whitespace-pre-line font-light">
                           {notice.content}
                         </p>
@@ -136,7 +170,7 @@ const Notices = () => {
                             href={notice.link} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-4 text-amber-500 font-bold uppercase tracking-widest text-xs hover:gap-6 transition-all duration-500"
+                            className="inline-flex items-center gap-4 text-[var(--c-6-start)] font-bold uppercase tracking-widest text-xs hover:gap-6 transition-all duration-500"
                           >
                             {notice.linkText || 'View Details'} <ArrowRight className="w-5 h-5" />
                           </a>
@@ -144,7 +178,7 @@ const Notices = () => {
                       </div>
                     </div>
                     {/* Subtle Background Accent */}
-                    <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-amber-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    {!shouldReduceGfx && <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-[var(--c-6-start)]/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />}
                   </div>
                 </ScrollReveal>
               ))

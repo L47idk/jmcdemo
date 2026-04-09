@@ -130,13 +130,13 @@ export const useDashboard = () => {
       const fileName = `${Date.now()}-${finalBase}.${extension}`;
 
       const { data, error } = await supabase.storage
-        .from('image')
+        .from('images')
         .upload(fileName, file);
 
       if (error) throw error;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('image')
+        .from('images')
         .getPublicUrl(fileName);
 
       updateFieldByPath(path, publicUrl);

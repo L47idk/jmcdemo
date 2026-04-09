@@ -2,6 +2,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+import { usePerformance } from '../hooks/usePerformance';
+
 interface ScrollRevealProps {
   children: React.ReactNode;
   width?: "fit-content" | "100%";
@@ -21,6 +23,12 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
   duration = 0.8,
   className = ""
 }) => {
+  const { shouldReduceGfx } = usePerformance();
+
+  if (shouldReduceGfx) {
+    return <div style={{ position: "relative", width }} className={className}>{children}</div>;
+  }
+
   const getInitialProps = () => {
     switch (direction) {
       case "up": return { y: distance, opacity: 0 };
@@ -41,6 +49,7 @@ const ScrollReveal: React.FC<ScrollRevealProps> = ({
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
+        style={{ willChange: "transform, opacity" }}
         transition={{ 
           duration, 
           delay, 

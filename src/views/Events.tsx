@@ -5,13 +5,43 @@ import { Calendar, MapPin, Clock, ArrowRight, Filter, Search, Trophy, Users, Boo
 import { useContent } from '../context/ContentContext';
 import ScrollReveal from '../components/ScrollReveal';
 import Image from 'next/image';
+import { Skeleton } from '../components/Skeleton';
+import { resolveImageUrl } from '../lib/utils';
+
+import { usePerformance } from '../hooks/usePerformance';
+
+const EventsSkeleton = () => (
+  <div className="min-h-screen bg-[#050505] pt-40">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mb-24">
+        <Skeleton className="h-4 w-32 mb-8" />
+        <Skeleton className="h-24 w-3/4 mb-6" />
+        <Skeleton className="h-24 w-1/2 mb-12" />
+        <Skeleton className="h-6 w-2/3" />
+      </div>
+      <div className="flex gap-4 mb-24">
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} className="h-12 w-32 rounded-full" />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-[500px] rounded-3xl" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const Events = () => {
-  const { content } = useContent();
+  const { content, loading } = useContent();
   const eventsContent = content?.events || {};
   const events = eventsContent.events || [];
   const [filter, setFilter] = React.useState('all');
   const [search, setSearch] = React.useState('');
+  const { shouldReduceGfx } = usePerformance();
+
+  if (loading) return <EventsSkeleton />;
 
   const filteredEvents = events.filter((e: any) => {
     const matchesFilter = filter === 'all' || e.category?.toLowerCase() === filter.toLowerCase();
@@ -32,8 +62,12 @@ const Events = () => {
   return (
     <div className="relative min-h-screen bg-[#050505] overflow-hidden">
       {/* Background Glows */}
-      <div className="atmospheric-glow w-[500px] h-[500px] bg-amber-500/5 -top-48 -right-24" />
-      <div className="atmospheric-glow w-[600px] h-[600px] bg-indigo-500/5 bottom-0 -left-24" />
+      {!shouldReduceGfx && (
+        <>
+          <div className="atmospheric-glow w-[500px] h-[500px] bg-[var(--c-6-start)]/5 -top-48 -right-24" />
+          <div className="atmospheric-glow w-[600px] h-[600px] bg-[var(--c-2-start)]/5 bottom-0 -left-24" />
+        </>
+      )}
 
       <div className="pt-40 pb-32 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -42,16 +76,16 @@ const Events = () => {
           <ScrollReveal>
             <div className="max-w-5xl mb-24">
               <div className="flex items-center gap-4 mb-8">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-amber-500/80">{eventsContent.subtitle || 'UPCOMING EVENTS'}</span>
+                <Sparkles className="w-5 h-5 text-[var(--c-6-start)]" />
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[var(--c-6-start)]/80">{eventsContent.subtitle || 'UPCOMING EVENTS'}</span>
               </div>
               <h1 className="text-7xl md:text-[9rem] font-display font-bold leading-[0.85] tracking-tighter mb-12">
                 {eventsContent.title?.split(' ').map((word: string, i: number) => (
-                  <span key={i} className={i === 1 ? 'gold-text' : 'block'}>{word} </span>
+                  <span key={i} className={i === 1 ? 'blue-text' : 'block'}>{word} </span>
                 )) || (
                   <>
                     <span className="block">BEYOND</span>
-                    <span className="gold-text">NUMBERS</span>
+                    <span className="blue-text">NUMBERS</span>
                   </>
                 )}
               </h1>
@@ -72,14 +106,20 @@ const Events = () => {
                     <button
                       key={cat.id}
                       onClick={() => setFilter(cat.id)}
-                      className={`px-8 py-4 rounded-full text-[10px] uppercase tracking-widest font-bold flex items-center gap-3 transition-all duration-500 border ${
+                      className={`px-8 py-4 rounded-full text-[10px] uppercase tracking-widest font-bold flex items-center gap-3 transition-all duration-500 border relative overflow-hidden group/cat ${
                         filter === cat.id 
-                          ? 'bg-amber-500 text-black border-amber-500 shadow-xl shadow-amber-500/20' 
+                          ? 'text-white border-transparent shadow-xl shadow-[var(--c-6-start)]/20' 
                           : 'bg-white/5 text-zinc-500 border-white/10 hover:bg-white/10 hover:text-white'
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
-                      {cat.name}
+                      {filter === cat.id && (
+                        <motion.div 
+                          layoutId="activeCat"
+                          className="absolute inset-0 bg-gradient-to-br from-[var(--c-6-start)] to-[var(--c-6-end)] -z-0"
+                        />
+                      )}
+                      <Icon className="w-4 h-4 relative z-10" />
+                      <span className="relative z-10">{cat.name}</span>
                     </button>
                   );
                 })}
@@ -88,13 +128,13 @@ const Events = () => {
 
             <ScrollReveal direction="right">
               <div className="relative w-full lg:w-96 group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-amber-500 transition-colors" />
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500 group-focus-within:text-[var(--c-6-start)] transition-colors" />
                 <input 
                   type="text"
                   placeholder="SEARCH EVENTS..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-16 pr-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all text-white placeholder:text-zinc-600 font-bold text-[10px] tracking-widest uppercase"
+                  className="w-full pl-16 pr-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-[var(--c-6-start)]/50 focus:ring-4 focus:ring-[var(--c-6-start)]/10 transition-all text-white placeholder:text-zinc-600 font-bold text-[10px] tracking-widest uppercase"
                 />
               </div>
             </ScrollReveal>
@@ -104,20 +144,20 @@ const Events = () => {
           {filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {filteredEvents.map((event: any, i: number) => (
-                <ScrollReveal key={i} delay={i * 0.1}>
+                <ScrollReveal key={i} delay={shouldReduceGfx ? 0 : i * 0.1}>
                   <div className="group relative h-full">
-                    <div className="absolute -inset-2 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-700" />
+                    {!shouldReduceGfx && <div className="absolute -inset-2 bg-gradient-to-br from-[var(--c-6-start)]/10 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-700" />}
                     <div className="relative glass-card h-full flex flex-col">
                       <div className="relative aspect-[16/10] overflow-hidden">
                         <Image 
-                          src={event.imageUrl || `https://picsum.photos/seed/event-${i}/800/600`} 
+                          src={resolveImageUrl(event.imageUrl) || `https://picsum.photos/seed/event-${i}/800/600`} 
                           alt={event.title} 
                           fill
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100"
+                          className={`w-full h-full object-cover ${!shouldReduceGfx && 'group-hover:scale-110 transition-transform duration-1000'} opacity-60 group-hover:opacity-100`}
                           referrerPolicy="no-referrer"
                         />
                         <div className="absolute top-6 left-6 flex flex-col gap-2">
-                          <div className="px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[10px] font-bold uppercase tracking-widest text-amber-500">
+                          <div className="px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[10px] font-bold uppercase tracking-widest text-[var(--c-6-start)]">
                             {event.category || 'Event'}
                           </div>
                           {event.tag && (
@@ -133,21 +173,21 @@ const Events = () => {
                         </div>
                       </div>
                       <div className="p-10 flex-grow flex flex-col">
-                        <h3 className="text-3xl font-display font-bold mb-6 group-hover:text-amber-500 transition-colors leading-tight">{event.title}</h3>
+                        <h3 className="text-3xl font-display font-bold mb-6 group-hover:text-[var(--c-6-start)] transition-colors leading-tight">{event.title}</h3>
                         <p className="text-zinc-500 leading-relaxed mb-10 flex-grow font-light">
                           {event.description}
                         </p>
                         <div className="space-y-4 mb-10">
                           <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-zinc-600">
-                            <Calendar className="w-4 h-4 text-amber-500" />
+                            <Calendar className="w-4 h-4 text-[var(--c-6-start)]" />
                             {event.date}
                           </div>
                           <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-zinc-600">
-                            <Clock className="w-4 h-4 text-amber-500" />
+                            <Clock className="w-4 h-4 text-[var(--c-6-start)]" />
                             {event.time}
                           </div>
                           <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-zinc-600">
-                            <MapPin className="w-4 h-4 text-amber-500" />
+                            <MapPin className="w-4 h-4 text-[var(--c-6-start)]" />
                             {event.location}
                           </div>
                         </div>
@@ -155,7 +195,7 @@ const Events = () => {
                           href={event.registrationLink || '#'}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-amber-500 hover:text-black hover:border-amber-500 transition-all duration-500 flex items-center justify-center gap-3 group/btn shadow-lg shadow-black/20"
+                          className="w-full py-5 btn-metallic-blue flex items-center justify-center gap-3 group/btn"
                         >
                           {event.buttonText || 'Register Now'}
                           <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-2 transition-transform" />

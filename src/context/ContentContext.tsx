@@ -8,6 +8,7 @@ interface ContentContextType {
   updateContent: (section: string, data: any) => Promise<void>;
   updateNestedField: (jsonPath: string, value: any) => Promise<void>;
   saveAllContent: (data: any) => Promise<void>;
+  seedDatabase: () => Promise<void>;
   loading: boolean;
 }
 
@@ -16,161 +17,143 @@ const ContentContext = React.createContext<ContentContextType>({
   updateContent: async () => {},
   updateNestedField: async () => {},
   saveAllContent: async () => {},
+  seedDatabase: async () => {},
   loading: true,
 });
+
+const DEFAULT_CONTENT = {
+  site: {
+    clubName: "Josephite Math Club",
+    logoUrl: ""
+  },
+  home: {
+    heroTagline: "Est. 2015 * Excellence in Mathematics",
+    heroTitle: "Josephite Math Club",
+    heroSubtitle: "Where logic meets creativity to solve the world's most beautiful problems.",
+    heroSubtitles: [
+      "Where logic meets creativity to solve the world's most beautiful problems.",
+      "Exploring the infinite boundaries of mathematical thought.",
+      "Building a sanctuary for Josephite mathematicians.",
+      "Innovating through the language of the universe."
+    ],
+    joinButtonText: "Join the Club",
+    storyButtonText: "Our Story",
+    memoriesTagline: "Visual Journey",
+    memoriesTitle: "Our Memories",
+    testimonialsTagline: "Voices of JMC",
+    testimonialsTitle: "People About JMC",
+    agendaTagline: "Our Mission",
+    agendaTitle: "The Club Agenda",
+    agendaDescription: "We aim to bridge the gap between theoretical mathematics and practical innovation through a series of structured programs.",
+    agendaItems: [
+      { title: "Weekly Workshops", icon: "Zap" },
+      { title: "Monthly Competitions", icon: "Trophy" },
+      { title: "Annual Math Festival", icon: "Star" },
+      { title: "Research Projects", icon: "Lightbulb" }
+    ],
+    gallery: [],
+    testimonials: []
+  },
+  about: {
+    title: "ABOUT US",
+    subtitle: "THE JMC STORY",
+    description: "The Josephite Math Club is a premier student organization dedicated to fostering mathematical excellence and innovation. Founded with a vision to make mathematics accessible and exciting, we provide a platform for students to explore the beauty of numbers and their applications in the real world.",
+    stats: [
+      { label: "Active Members", value: "500+" },
+      { label: "Annual Events", value: "12+" },
+      { label: "Years of Legacy", value: "9" },
+      { label: "Awards Won", value: "50+" }
+    ],
+    objectives: [
+      "Promote mathematical thinking and problem-solving skills.",
+      "Organize competitions and workshops at various levels.",
+      "Create a collaborative environment for math enthusiasts.",
+      "Bridge the gap between academic math and real-world applications."
+    ],
+    visionSteps: [
+      { title: "Foundation", description: "Building a strong community of math enthusiasts." },
+      { title: "Innovation", description: "Exploring new ways to teach and learn mathematics." },
+      { title: "Excellence", description: "Achieving top results in national and international competitions." }
+    ]
+  },
+  panel: {
+    title: "OUR PANEL",
+    subtitle: "LEADERSHIP",
+    description: "Meet the dedicated individuals who lead the Josephite Math Club towards its goals of excellence and innovation.",
+    committees: {
+      current: {
+        president: [],
+        vicePresidents: [],
+        generalSecretary: [],
+        secretaries: { asstGeneralSecretary: [], jointSecretary: [], organizingSecretary: [], correspondingSecretary: [] },
+        departments: []
+      },
+      recent: {
+        president: [],
+        generalSecretary: [],
+        vicePresidents: [],
+        departments: [],
+        secretaries: { asstGeneralSecretary: [], jointSecretary: [], organizingSecretary: [], correspondingSecretary: [] }
+      },
+      former: {
+        president: [],
+        generalSecretary: [],
+        vicePresidents: [],
+        departments: [],
+        secretaries: { asstGeneralSecretary: [], jointSecretary: [], organizingSecretary: [], correspondingSecretary: [] }
+      }
+    }
+  },
+  gallery_page: {
+    images: []
+  },
+  notices: {
+    title: "NOTICE BOARD",
+    subtitle: "ANNOUNCEMENTS",
+    description: "Stay updated with the latest announcements, results, and important information from the Josephite Math Club.",
+    notices: []
+  },
+  events: {
+    title: "BEYOND NUMBERS",
+    subtitle: "UPCOMING EVENTS",
+    description: "Join us for a series of challenging competitions, insightful workshops, and engaging seminars designed to push your mathematical boundaries.",
+    events: []
+    },
+    members_list: {
+      title: "OUR MEMBERS",
+      subtitle: "COMMUNITY",
+      description: "The heartbeat of Josephite Math Club - our diverse and passionate community of mathematicians.",
+      members: []
+    }
+  };
 
 export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [content, setContent] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const { isAdmin } = useAuth();
 
-  // Helper to set nested property
-  const setNestedProperty = (obj: any, path: string, value: any) => {
-    const newObj = JSON.parse(JSON.stringify(obj));
-    const parts = path.split('.');
-    let current = newObj;
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i];
-      if (!(part in current)) current[part] = {};
-      current = current[part];
-    }
-    current[parts[parts.length - 1]] = value;
-    return newObj;
-  };
-
-  useEffect(() => {
-    const defaults = {
-      site: {
-        clubName: "Josephite Math Club",
-        logoUrl: ""
-      },
-      home: {
-        heroTitle: "Josephite Math Club",
-        heroSubtitle: "Where logic meets imagination.",
-        testimonialsTitle: "People About JMC",
-        testimonials: [
-          { name: "Anthony Prince Costa", role: "Chief Moderator", message: "As Chief Moderator, I take pride in guiding the Math Club, which reflects the spirit of our department. Our mission is to create a community where mathematics is not just about formulas but about critical thinking, curiosity, and teamwork. This club allows students to go beyond textbooks and experience the true beauty of numbers and logic.", imageUrl: "" },
-          { name: "Intesher Alam Manam", role: "Club President", message: "As the President of the Math Club, I feel honored to lead such a vibrant community. My vision is to make this club a hub for discovery, learning, and collaboration. Whether it's competitions, workshops, or friendly discussions, we want every member to feel inspired and motivated to see math not as pressure, but as passion.", imageUrl: "" },
-          { name: "Shoumik Saha Raj", role: "General Secretary", message: "As General Secretary, my role is to keep our Math Club organized, active, and welcoming for everyone. I work to ensure smooth coordination of events, competitions, and activities so that each member has the chance to participate and grow. Together, we are creating a community where learning mathematics is not only meaningful but also enjoyable.", imageUrl: "" },
-          { name: "Monwar Rafat", role: "Deputy President", message: "Serving as Deputy President, I work alongside our president and members to ensure that the Math Club continues to grow with new initiatives. We aim to make mathematics a source of joy, exploration, and innovation for every student, giving them opportunities to learn and lead with confidence.", imageUrl: "" },
-          { name: "Arefin Anwar", role: "Vice President", message: "As Vice President, I believe the true strength of our Math Club lies in teamwork and inclusiveness. We are building a community where students not only sharpen their problem-solving skills but also learn to innovate, collaborate, and enjoy mathematics as a lifelong journey of discovery.", imageUrl: "" }
-        ]
-      },
-      about: {
-        title: "Our Mathematical Legacy",
-        description: "The Josephite Math Club (JMC) is the premier platform for mathematical exploration at St. Joseph's College. Founded on the principles of logic, curiosity, and excellence, we strive to transform the way students perceive and interact with the world of numbers.",
-        mission: "To cultivate a deep-seated love for mathematics through rigorous competition, collaborative learning, and innovative problem-solving workshops."
-      },
-      panel: {
-        moderators: [
-          { role: "Chief Moderator", name: "Prof. Alan Turing", imageUrl: "https://picsum.photos/200/200?random=20" },
-          { role: "Moderator", name: "Dr. Emmy Noether", imageUrl: "https://picsum.photos/200/200?random=21" },
-          { role: "Moderator", name: "Prof. Srinivasa Ramanujan", imageUrl: "https://picsum.photos/200/200?random=22" },
-        ],
-        executive: {
-          current: {
-            president: [{ role: "President", name: "John Doe", imageUrl: "https://picsum.photos/200/200?random=23" }],
-            deputyPresidents: [
-              { role: "Deputy President", name: "Jane Smith", imageUrl: "https://picsum.photos/200/200?random=24" },
-              { role: "Deputy President", name: "Michael Ross", imageUrl: "https://picsum.photos/200/200?random=25" },
-            ],
-            generalSecretary: [{ role: "General Secretary", name: "Sarah Connor", imageUrl: "https://picsum.photos/200/200?random=26" }],
-            vicePresidents: [
-              { role: "Vice President", name: "VP One", imageUrl: "" },
-              { role: "Vice President", name: "VP Two", imageUrl: "" },
-              { role: "Vice President", name: "VP Three", imageUrl: "" },
-              { role: "Vice President", name: "VP Four", imageUrl: "" },
-              { role: "Vice President", name: "VP Five", imageUrl: "" },
-            ],
-            departments: [
-              { dept: "Internal Affairs", name: "Head One", imageUrl: "" },
-              { dept: "External Affairs", name: "Head Two", imageUrl: "" },
-              { dept: "Photography", name: "Head Three", imageUrl: "" },
-              { dept: "Events", name: "Head Four", imageUrl: "" },
-            ],
-            secretaries: {
-              asstGeneralSecretary: [
-                { name: "Kazi Nafisul Bashar" },
-                { name: "Tahmid Muhsin Taqi" },
-                { name: "Tawsif Hamid Abir" },
-                { name: "Shougoto Saha" },
-                { name: "Mahdi Rasif" },
-                { name: "Arefin Alam Tanjim" },
-                { name: "Tauhidur Rahman" },
-                { name: "Zulkarnain Zaman Aarosh" },
-                { name: "Sindid Alam" },
-                { name: "Muhtadee Tausif Hasan Adib" },
-                { name: "MD Jarif Bin Hossain" }
-              ],
-              jointSecretary: [
-                { name: "Swapnil Podder" },
-                { name: "Ragib Ash Add" },
-                { name: "Md. Nazmus Sakib" },
-                { name: "Ajmol Fahim" },
-                { name: "Probaho Kul Sanchalon Minhaz" },
-                { name: "Shuvashish Saha" },
-                { name: "S M Abir" },
-                { name: "Tasdid Alam Ratul" },
-                { name: "Raiyan Nafir Rhythm" },
-                { name: "Sameer Saihan" }
-              ],
-              organizingSecretary: [
-                { name: "Shuvro" },
-                { name: "Riyad Miah" },
-                { name: "Krrish" },
-                { name: "Sadman" },
-                { name: "Walid Pathan" },
-                { name: "Shirsendu Das" }
-              ],
-              correspondingSecretary: [
-                { name: "Farhan" },
-                { name: "Mashnoon" },
-                { name: "Oliver" },
-                { name: "Shuvro Aninda Bepari" },
-                { name: "Saraf Islam Nuhil" },
-                { name: "Tahmid" },
-                { name: "Al Wasif" }
-              ]
-            }
-          },
-          recent: {
-            president: [],
-            deputyPresidents: [],
-            generalSecretary: [],
-            vicePresidents: [],
-            departments: [],
-            secretaries: { asstGeneralSecretary: [], jointSecretary: [], organizingSecretary: [], correspondingSecretary: [] }
-          },
-          former: {
-            president: [],
-            deputyPresidents: [],
-            generalSecretary: [],
-            vicePresidents: [],
-            departments: [],
-            secretaries: { asstGeneralSecretary: [], jointSecretary: [], organizingSecretary: [], correspondingSecretary: [] }
-          }
-        }
-      },
-      gallery: {
-        images: []
-      },
-      notices: {
-        title: "NOTICE BOARD",
-        subtitle: "ANNOUNCEMENTS",
-        description: "Stay updated with the latest announcements, results, and important information from the Josephite Math Club.",
-        notices: []
-      },
-      events: {
-        title: "BEYOND NUMBERS",
-        subtitle: "UPCOMING EVENTS",
-        description: "Join us for a series of challenging competitions, insightful workshops, and engaging seminars designed to push your mathematical boundaries.",
-        events: []
+    // Helper to set nested property
+    const setNestedProperty = (obj: any, path: string, value: any) => {
+      const newObj = JSON.parse(JSON.stringify(obj));
+      const parts = path.split('.');
+      let current = newObj;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!(part in current)) current[part] = {};
+        current = current[part];
       }
+      current[parts[parts.length - 1]] = value;
+      
+      // Update lastUpdated timestamp
+      newObj.lastUpdated = new Date().toISOString();
+      
+      return newObj;
     };
 
+  useEffect(() => {
     const fetchContent = async () => {
       setLoading(true);
-      let localContent = { ...defaults };
+      let localContent = { ...DEFAULT_CONTENT };
       let localUpdatedAt = "1970-01-01T00:00:00Z";
       let remoteContent = {};
       let remoteUpdatedAt = "1970-01-01T00:00:00Z";
@@ -184,11 +167,9 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             localContent = result.data;
             localUpdatedAt = result.updatedAt;
           }
-        } else {
-          console.warn("Local content API returned an error:", response.status);
         }
       } catch (err) {
-        console.error("Error fetching local content (network error):", err);
+        // Silent fail for regular users
       }
 
       // 2. Try to fetch Supabase content (remote source)
@@ -202,10 +183,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           
           if (data && !error) {
             remoteContent = data.data;
-            remoteUpdatedAt = data.updated_at;
+            // Use the internal lastUpdated if available, fallback to DB updated_at
+            remoteUpdatedAt = (data.data as any)?.lastUpdated || data.updated_at || "1970-01-01T00:00:00Z";
           }
         } catch (err) {
-          console.error("Error fetching remote content:", err);
+          // Silent fail
         }
       }
 
@@ -222,18 +204,19 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(false);
 
       // 4. Auto-sync if they are out of sync (only if admin)
-      // This ensures manual edits to JSON or DB eventually reach both sources.
       if (isSupabaseConfigured && isAdmin && Math.abs(localTime - remoteTime) > 5000) {
         if (localTime > remoteTime) {
-          console.log("Local JSON is newer, syncing to Supabase...");
           await supabase.from('site_content').upsert({ id: 'main', data: localContent });
         } else {
-          console.log("Remote Supabase is newer, syncing to local JSON...");
-          await fetch('/api/content', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(remoteContent),
-          });
+          try {
+            await fetch('/api/content', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(remoteContent),
+            });
+          } catch (err) {
+            // Silent fail
+          }
         }
       }
     };
@@ -241,9 +224,9 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     fetchContent();
   }, [isAdmin]);
 
-  // Real-time subscription for Supabase changes
+  // Real-time subscription for Supabase changes (only for admins to save quota)
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured || !isAdmin) return;
 
     const channel = supabase
       .channel('site_content_realtime')
@@ -256,7 +239,6 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           filter: 'id=eq.main',
         },
         (payload) => {
-          console.log('Real-time content update received:', payload);
           if (payload.new && (payload.new as any).data) {
             setContent((prev: any) => ({
               ...prev,
@@ -270,23 +252,31 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [isAdmin]);
 
-  const updateContent = async (section: string, data: any) => {
-    if (!isAdmin) return;
-    const newContent = { ...content, [section]: data };
-    
-    setContent(newContent);
+    const updateContent = async (section: string, data: any) => {
+      if (!isAdmin) return;
+      const newContent = { 
+        ...content, 
+        [section]: data,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      setContent(newContent);
     
     // Update file-based content
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       await fetch('/api/content', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
         body: JSON.stringify(newContent),
       });
     } catch (err) {
-      console.error("Error updating file-based content:", err);
+      console.error("Error updating file-based content (updateContent):", err);
     }
 
     // Update Supabase
@@ -300,14 +290,11 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           console.error("Supabase Upsert Error (updateContent):", error);
           throw error;
         }
-        console.log("Content successfully saved to Supabase.");
       } catch (err: any) {
         console.error("Error updating Supabase content (updateContent):", err);
         const errorMessage = err.message || "Unknown error";
         throw new Error(`Failed to save changes to the database: ${errorMessage}. Please ensure the 'site_content' table exists and RLS policies are configured.`);
       }
-    } else {
-      console.warn("Supabase is not configured. Changes will only be saved locally (and lost on reload in production).");
     }
   };
 
@@ -319,13 +306,17 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     // Update file-based content
     try {
-      await fetch('/api/content/update', {
+      const { data: { session } } = await supabase.auth.getSession();
+      await fetch('/api/content', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jsonPath, value }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify(newContent),
       });
     } catch (err) {
-      console.error("Error updating file-based content:", err);
+      console.error("Error updating file-based content (updateNestedField):", err);
     }
 
     // Update Supabase
@@ -342,44 +333,72 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  const saveAllContent = async (newContent: any) => {
-    if (!isAdmin) return;
-    
-    setContent(newContent);
-    
-    // Update file-based content
-    try {
-      await fetch('/api/content', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newContent),
-      });
-    } catch (err) {
-      console.error("Error updating file-based content:", err);
-    }
-
-    // Update Supabase
-    if (isSupabaseConfigured) {
+    const saveAllContent = async (newContent: any) => {
+      if (!isAdmin) return;
+      
+      const contentWithTimestamp = {
+        ...newContent,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      setContent(contentWithTimestamp);
+      
+      // Update file-based content
       try {
-        const { error } = await supabase
-          .from('site_content')
-          .upsert({ id: 'main', data: newContent });
-        
-        if (error) {
-          console.error("Supabase Upsert Error (saveAllContent):", error);
-          throw error;
-        }
-        console.log("Content successfully saved to Supabase.");
-      } catch (err: any) {
-        console.error("Error updating Supabase content (saveAllContent):", err);
-        const errorMessage = err.message || "Unknown error";
-        throw new Error(`Failed to save changes to the database: ${errorMessage}. Please ensure the 'site_content' table exists and RLS policies are configured.`);
+        const { data: { session } } = await supabase.auth.getSession();
+        await fetch('/api/content', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify(contentWithTimestamp),
+        });
+      } catch (err) {
+        console.error("Error updating file-based content (saveAllContent):", err);
       }
+  
+      // Update Supabase
+      if (isSupabaseConfigured) {
+        try {
+          const { error } = await supabase
+            .from('site_content')
+            .upsert({ id: 'main', data: contentWithTimestamp });
+          
+          if (error) {
+            console.error("Supabase Upsert Error (saveAllContent):", error);
+            throw error;
+          }
+        } catch (err: any) {
+          console.error("Error updating Supabase content (saveAllContent):", err);
+          const errorMessage = err.message || "Unknown error";
+          throw new Error(`Failed to save changes to the database: ${errorMessage}. Please ensure the 'site_content' table exists and RLS policies are configured.`);
+        }
+      }
+    };
+
+  const seedDatabase = async () => {
+    if (!isAdmin || !isSupabaseConfigured) return;
+    
+    try {
+      const { error } = await supabase
+        .from('site_content')
+        .upsert({ 
+          id: 'main', 
+          data: content,
+          updated_at: new Date().toISOString()
+        });
+      
+      if (error) throw error;
+      console.log("Database seeded successfully");
+    } catch (err) {
+      console.error("Error seeding database:", err);
+      throw err;
     }
   };
 
   return (
-    <ContentContext.Provider value={{ content, updateContent, updateNestedField, saveAllContent, loading }}>
+    <ContentContext.Provider value={{ content, updateContent, updateNestedField, saveAllContent, seedDatabase, loading }}>
       {children}
     </ContentContext.Provider>
   );

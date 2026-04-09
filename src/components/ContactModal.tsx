@@ -52,7 +52,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div className="space-y-8">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 shrink-0 border border-amber-500/20">
+                    <div className="w-10 h-10 bg-[var(--c-6-start)]/10 rounded-xl flex items-center justify-center text-[var(--c-6-start)] shrink-0 border border-[var(--c-6-start)]/20">
                       <Mail className="w-5 h-5" />
                     </div>
                     <div>
@@ -61,7 +61,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 shrink-0 border border-amber-500/20">
+                    <div className="w-10 h-10 bg-[var(--c-6-start)]/10 rounded-xl flex items-center justify-center text-[var(--c-6-start)] shrink-0 border border-[var(--c-6-start)]/20">
                       <Phone className="w-5 h-5" />
                     </div>
                     <div>
@@ -70,7 +70,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 shrink-0 border border-amber-500/20">
+                    <div className="w-10 h-10 bg-[var(--c-6-start)]/10 rounded-xl flex items-center justify-center text-[var(--c-6-start)] shrink-0 border border-[var(--c-6-start)]/20">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
@@ -85,24 +85,24 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
                     <input 
                       type="text" 
                       placeholder="Name" 
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[var(--c-6-start)]/50 transition-all"
                     />
                   </div>
                   <div>
                     <input 
                       type="email" 
                       placeholder="Email" 
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[var(--c-6-start)]/50 transition-all"
                     />
                   </div>
                   <div>
                     <textarea 
                       placeholder="Message" 
                       rows={4}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all resize-none"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-[var(--c-6-start)]/50 transition-all resize-none"
                     />
                   </div>
-                  <button className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                  <button className="w-full py-4 btn-metallic-blue flex items-center justify-center gap-2">
                     Send Message <Send className="w-4 h-4" />
                   </button>
                 </form>

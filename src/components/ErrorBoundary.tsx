@@ -57,7 +57,7 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="grid grid-cols-1 gap-4 pt-4">
               <button
                 onClick={() => window.location.reload()}
-                className="w-full py-4 rounded-xl bg-amber-500 text-black font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
+                className="w-full py-4 btn-metallic-blue flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reload Page

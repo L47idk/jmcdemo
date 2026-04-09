@@ -13,6 +13,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { usePerformance } from '../../hooks/usePerformance';
 
 interface DashboardLayoutProps {
   activeTab: string;
@@ -40,6 +41,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children
 }) => {
   const router = useRouter();
+  const { shouldReduceGfx } = usePerformance();
 
   return (
     <div className="flex min-h-screen bg-[#050505] selection:bg-amber-500/30 selection:text-amber-200">
@@ -66,8 +68,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <div className="flex-1 p-6 overflow-y-auto space-y-8 custom-scrollbar">
           {!isSupabaseConfigured && (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
+              animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, scale: 1 }}
               className="p-5 bg-amber-500/5 border border-amber-500/10 rounded-3xl text-amber-500 text-[11px] leading-relaxed shadow-inner"
             >
               <div className="flex items-center gap-2 font-bold mb-2 uppercase tracking-widest">
@@ -91,12 +93,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                       : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-200'
                   }`}
                 >
-                  {activeTab === tab.id && (
+                  {activeTab === tab.id && !shouldReduceGfx && (
                     <motion.div 
                       layoutId="activeTab"
                       className="absolute inset-0 bg-amber-500 z-0"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
+                  )}
+                  {activeTab === tab.id && shouldReduceGfx && (
+                    <div className="absolute inset-0 bg-amber-500 z-0" />
                   )}
                   <div className="flex items-center gap-4 relative z-10">
                     <tab.icon className={`w-5 h-5 transition-colors duration-300 ${activeTab === tab.id ? 'text-black' : 'text-zinc-600 group-hover:text-amber-500'}`} />
@@ -136,7 +141,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <div className="sticky top-0 z-40 w-full bg-[#050505]/80 backdrop-blur-2xl border-b border-white/5 px-12 py-6">
           <div className="max-w-6xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              <div className={`w-1.5 h-1.5 rounded-full bg-amber-500 ${shouldReduceGfx ? '' : 'animate-pulse'}`} />
               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.4em]">Live Editor</span>
             </div>
             
@@ -155,8 +160,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               )}
               
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={shouldReduceGfx ? {} : { scale: 1.02 }}
+                whileTap={shouldReduceGfx ? {} : { scale: 0.98 }}
                 onClick={() => {
                   console.log("Dashboard: Update Content button clicked");
                   onSave();
@@ -170,7 +175,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               >
                 {saving ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className={`w-5 h-5 ${shouldReduceGfx ? '' : 'animate-spin'}`} />
                     Processing...
                   </>
                 ) : saveSuccess ? (
@@ -193,10 +198,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              initial={shouldReduceGfx ? { opacity: 1 } : { opacity: 0, x: 20 }}
+              animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+              exit={shouldReduceGfx ? { opacity: 1 } : { opacity: 0, x: -20 }}
+              transition={shouldReduceGfx ? { duration: 0.1 } : { duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="mb-16">
                 <h1 className="text-7xl font-bold text-white font-display tracking-tight mb-4 capitalize">

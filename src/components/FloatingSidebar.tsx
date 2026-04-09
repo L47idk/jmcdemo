@@ -6,28 +6,38 @@ import { usePathname } from 'next/navigation';
 import { useContent } from '@/context/ContentContext';
 import { 
   FacebookIcon, 
-  InstagramIcon, 
-  YoutubeIcon, 
-  GithubIcon 
+  InstagramIcon 
 } from './SocialIcons';
 import { 
   Code2, 
   ChevronUp, 
-  Bell 
+  Bell,
+  Calendar,
+  ClipboardList
 } from 'lucide-react';
+
+import { usePerformance } from '@/hooks/usePerformance';
 
 const FloatingSidebar = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [hasNewNotice, setHasNewNotice] = useState(false);
   const { content } = useContent();
   const pathname = usePathname();
+  const { shouldReduceGfx } = usePerformance();
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setShowScrollTop(window.scrollY > 400);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -67,64 +77,102 @@ const FloatingSidebar = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const socialLinks = [
-    { icon: FacebookIcon, href: "https://www.facebook.com/2015JMC", color: "hover:text-blue-600", external: true },
-    { icon: InstagramIcon, href: "https://instagram.com", color: "hover:text-pink-600", external: true },
-    { icon: YoutubeIcon, href: "/404-not-found", color: "hover:text-red-600", external: false },
-    { icon: GithubIcon, href: "https://github.com", color: "hover:text-gray-900", external: true },
-    { icon: Code2, href: "/developers", color: "hover:text-amber-600", external: false, newTab: true },
+  const sidebarLinks = [
+    { 
+      name: 'Notices',
+      icon: ClipboardList, 
+      href: "/notices", 
+      color: "hover:text-amber-500", 
+      external: false 
+    },
+    { 
+      name: 'Events',
+      icon: Calendar, 
+      href: "/events", 
+      color: "hover:text-amber-500", 
+      external: false 
+    },
+    { 
+      name: 'Facebook',
+      icon: FacebookIcon, 
+      href: content?.contact?.socials?.facebook || "https://www.facebook.com/2015JMC/", 
+      color: "hover:text-blue-600", 
+      external: true 
+    },
+    { 
+      name: 'Instagram',
+      icon: InstagramIcon, 
+      href: content?.contact?.socials?.instagram || "https://www.instagram.com/jmc_.official/", 
+      color: "hover:text-pink-600", 
+      external: true 
+    },
+    { 
+      name: 'Developers',
+      icon: Code2, 
+      href: "/developers", 
+      color: "hover:text-amber-600", 
+      external: false, 
+      newTab: true 
+    },
   ];
 
   return (
-    <div className="fixed right-6 top-1/2 -translate-y-1/2 z-[60] hidden sm:flex flex-col gap-3 items-center">
-      {/* Notification Icon */}
+    <div className="fixed right-8 top-1/2 -translate-y-1/2 z-[60] hidden sm:flex flex-col gap-4 items-center">
+      {/* Notification Icon (Floating separately or integrated) */}
       <Link href="/notices">
         <motion.div 
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_15px_35px_-5px_rgba(0,0,0,0.25),0_5px_15px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_45px_-5px_rgba(0,0,0,0.3),0_10px_20px_rgba(0,0,0,0.15)] cursor-pointer relative group transition-shadow duration-300"
+          whileHover={shouldReduceGfx ? {} : { scale: 1.1 }}
+          whileTap={shouldReduceGfx ? {} : { scale: 0.9 }}
+          className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] hover:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.6)] cursor-pointer relative group transition-all duration-300"
         >
-          <Bell className="w-6 h-6 text-black group-hover:text-amber-500 transition-colors fill-black group-hover:fill-amber-500" />
+          <Bell className="w-7 h-7 text-black group-hover:text-amber-500 transition-colors fill-black group-hover:fill-amber-500" />
           {hasNewNotice && (
-            <span className="absolute top-2.5 right-2.5 w-3.5 h-3.5 bg-[#C52D2F] rounded-full border-2 border-white group-hover:animate-pulse" />
+            <span className={`absolute top-3 right-3 w-4 h-4 bg-[#C52D2F] rounded-full border-2 border-white ${!shouldReduceGfx && 'group-hover:animate-pulse'}`} />
           )}
+          
+          {/* Tooltip */}
+          <div className="absolute right-full mr-4 px-3 py-1 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+            NOTICES
+          </div>
         </motion.div>
       </Link>
 
-      {/* Social Sidebar */}
+      {/* Main Sidebar */}
       <motion.div 
-        initial={{ x: 20, opacity: 0 }}
+        initial={shouldReduceGfx ? { x: 0, opacity: 1 } : { x: 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        className="bg-white rounded-full py-5 px-3 flex flex-col gap-5 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.25),0_5px_15px_rgba(0,0,0,0.1)] items-center"
+        className="bg-white rounded-full py-7 px-4 flex flex-col gap-6 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] items-center"
       >
-        {socialLinks.map((social, index) => {
-          const Icon = social.icon;
-          const linkProps = social.newTab ? { target: "_blank", rel: "noopener noreferrer" } : {};
+        {sidebarLinks.map((link, index) => {
+          const Icon = link.icon;
+          const linkProps = link.newTab ? { target: "_blank", rel: "noopener noreferrer" } : {};
           
-          if (social.external) {
+          const content = (
+            <motion.div
+              whileHover={shouldReduceGfx ? {} : { scale: 1.2 }}
+              whileTap={shouldReduceGfx ? {} : { scale: 0.9 }}
+              className={`text-black transition-all duration-300 cursor-pointer relative group ${link.color}`}
+            >
+              <Icon className="w-7 h-7" />
+              
+              {/* Tooltip */}
+              <div className="absolute right-full mr-6 px-3 py-1 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                {link.name}
+              </div>
+            </motion.div>
+          );
+
+          if (link.external) {
             return (
-              <motion.a
-                key={index}
-                href={social.href}
-                {...linkProps}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                className={`text-black transition-all duration-300 ${social.color}`}
-              >
-                <Icon className="w-6 h-6" />
-              </motion.a>
+              <a key={index} href={link.href} {...linkProps}>
+                {content}
+              </a>
             );
           }
 
           return (
-            <Link key={index} href={social.href} {...linkProps}>
-              <motion.div
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                className={`text-black transition-all duration-300 cursor-pointer ${social.color}`}
-              >
-                <Icon className="w-6 h-6" />
-              </motion.div>
+            <Link key={index} href={link.href} {...linkProps}>
+              {content}
             </Link>
           );
         })}
@@ -134,15 +182,15 @@ const FloatingSidebar = () => {
       <AnimatePresence>
         {showScrollTop && (
           <motion.button
-            initial={{ scale: 0, opacity: 0 }}
+            initial={shouldReduceGfx ? { opacity: 1 } : { scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { scale: 0, opacity: 0 }}
+            whileHover={shouldReduceGfx ? {} : { scale: 1.1 }}
+            whileTap={shouldReduceGfx ? {} : { scale: 0.9 }}
             onClick={scrollToTop}
-            className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_15px_35px_-5px_rgba(0,0,0,0.25),0_5px_15px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_45px_-5px_rgba(0,0,0,0.3),0_10px_20px_rgba(0,0,0,0.15)] cursor-pointer group transition-shadow duration-300"
+            className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] hover:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.6)] cursor-pointer group transition-all duration-300"
           >
-            <ChevronUp className="w-6 h-6 text-black group-hover:text-amber-500 transition-colors stroke-[3px]" />
+            <ChevronUp className="w-7 h-7 text-black group-hover:text-amber-500 transition-colors stroke-[3px]" />
           </motion.button>
         )}
       </AnimatePresence>

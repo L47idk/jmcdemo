@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { DEFAULT_ADMINS } from '../lib/constants';
 
 interface AuthContextType {
   user: User | null;
@@ -30,8 +31,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const lastUserId = React.useRef<string | null>(null);
 
   const fetchProfile = async (currentUser: User) => {
-    const adminEmailsEnv = process.env.NEXT_PUBLIC_ADMIN_EMAILS || "l47idkpro@gmail.com,jarysucksatgames@gmail.com";
-    const ADMIN_EMAILS = adminEmailsEnv.split(',').map(e => e.trim());
+    const adminEmailsEnv = process.env.NEXT_PUBLIC_ADMIN_EMAILS;
+    const ADMIN_EMAILS = Array.from(new Set([
+      ...(adminEmailsEnv ? adminEmailsEnv.split(',') : []),
+      ...DEFAULT_ADMINS
+    ])).map(e => e.trim().toLowerCase()).filter(Boolean);
+    
+    const userEmail = (currentUser.email || "").toLowerCase();
+    
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -44,18 +51,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...data,
           full_name: data.full_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || ""
         });
-        setIsAdmin(data.role === 'admin' || ADMIN_EMAILS.includes(currentUser.email || ""));
+        setIsAdmin(data.role === 'admin' || ADMIN_EMAILS.includes(userEmail));
       } else {
         setProfile({ 
           email: currentUser.email, 
           full_name: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "",
-          role: ADMIN_EMAILS.includes(currentUser.email || "") ? 'admin' : 'member' 
+          role: ADMIN_EMAILS.includes(userEmail) ? 'admin' : 'member' 
         });
-        setIsAdmin(ADMIN_EMAILS.includes(currentUser.email || ""));
+        setIsAdmin(ADMIN_EMAILS.includes(userEmail));
       }
     } catch (err) {
       console.error("AuthContext: Profile fetch exception:", err);
-      if (ADMIN_EMAILS.includes(currentUser.email || "")) {
+      if (ADMIN_EMAILS.includes(userEmail)) {
         setIsAdmin(true);
         setProfile({ 
           role: 'admin', 
@@ -76,12 +83,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     lastUserId.current = user?.id || null;
     setUser(user);
-    const adminEmailsEnv = process.env.NEXT_PUBLIC_ADMIN_EMAILS || "l47idkpro@gmail.com,jarysucksatgames@gmail.com";
-    const ADMIN_EMAILS = adminEmailsEnv.split(',').map(e => e.trim());
+    
+    const adminEmailsEnv = process.env.NEXT_PUBLIC_ADMIN_EMAILS;
+    const ADMIN_EMAILS = Array.from(new Set([
+      ...(adminEmailsEnv ? adminEmailsEnv.split(',') : []),
+      ...DEFAULT_ADMINS
+    ])).map(e => e.trim().toLowerCase()).filter(Boolean);
     
     if (user) {
-      if (ADMIN_EMAILS.includes(user.email || "")) {
+      const userEmail = (user.email || "").toLowerCase();
+      if (ADMIN_EMAILS.includes(userEmail)) {
+        console.log("AuthContext: User is in admin email list:", userEmail);
         setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
       }
       
       setLoading(true);
@@ -107,13 +122,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error("AuthContext: getSession error:", error);
+        if (error.message.includes('Refresh Token Not Found') || error.message.includes('invalid_grant')) {
+          // Clear session if refresh token is invalid
+          supabase.auth.signOut().catch(e => console.error("AuthContext: signOut error:", e));
+          handleAuthChange(null);
+          return;
+        }
+      }
       handleAuthChange(session?.user ?? null);
+    }).catch(err => {
+      console.error("AuthContext: getSession exception:", err);
+      handleAuthChange(null);
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleAuthChange(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+        handleAuthChange(session?.user ?? null);
+      } else if (event === 'TOKEN_REFRESHED') {
+        handleAuthChange(session?.user ?? null);
+      } else if (event === 'INITIAL_SESSION') {
+        // Handled by getSession above, but we'll update if needed
+        if (session?.user) handleAuthChange(session.user);
+      } else {
+        handleAuthChange(session?.user ?? null);
+      }
     });
 
     return () => {

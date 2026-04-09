@@ -7,11 +7,14 @@ import { useToast } from '../context/ToastContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
+import { usePerformance } from '../hooks/usePerformance';
+
 const Auth = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
   const initialMode = searchParams?.get('mode') === 'signup' ? 'signup' : 'login';
+  const { shouldReduceGfx } = usePerformance();
   
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
@@ -21,10 +24,17 @@ const Auth = () => {
   const [error, setError] = useState<string | null>(null);
   const [showDebug, setShowDebug] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
+  const [currentSession, setCurrentSession] = useState<any>(null);
 
-  const isConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setCurrentSession(session);
+    });
+  }, []);
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://gqcwzxnuawpfqvrukcmn.supabase.co";
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxY3d6eG51YXdwZnF2cnVrY21uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTYxNzIsImV4cCI6MjA4NzQzMjE3Mn0.ScX8MryJZvfRpa6H0RCeylRVhzlf7hdHnGE5YrbgIwQ";
+  const isConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
   useEffect(() => {
     if (searchParams?.get('mode') === 'signup') {
@@ -89,7 +99,9 @@ const Auth = () => {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        router.push('/profile');
+        
+        const redirect = searchParams?.get('redirect') || '/profile';
+        router.push(redirect);
       }
     } catch (err: any) {
       if (err.message === 'Failed to fetch') {
@@ -111,29 +123,29 @@ const Auth = () => {
   return (
     <div className="relative min-h-screen bg-[#050505] overflow-hidden flex items-center justify-center p-4 pt-32 pb-24">
       {/* Background Glows */}
-      <div className="atmospheric-glow w-[600px] h-[600px] bg-amber-500/10 -top-48 -left-24" />
-      <div className="atmospheric-glow w-[700px] h-[700px] bg-indigo-500/5 bottom-0 -right-24" />
+      <div className="atmospheric-glow w-[600px] h-[600px] bg-[var(--c-6-start)]/10 -top-48 -left-24" />
+      <div className="atmospheric-glow w-[700px] h-[700px] bg-[var(--c-2-start)]/5 bottom-0 -right-24" />
 
       <motion.div 
-        initial={{ opacity: 0, y: 40 }}
+        initial={shouldReduceGfx ? { opacity: 1 } : { opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: shouldReduceGfx ? 0.1 : 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-xl relative z-10"
       >
         <div className="p-12 md:p-16 rounded-[3rem] bg-white/[0.02] border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-[120px] -mr-48 -mt-48" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--c-6-start)]/5 rounded-full blur-[120px] -mr-48 -mt-48" />
           
           <div className="relative z-10">
             <div className="text-center mb-16">
               <div className="flex items-center justify-center gap-4 mb-8">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-amber-500/80">AUTHENTICATION</span>
+                <Sparkles className="w-5 h-5 text-[var(--c-6-start)]" />
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[var(--c-6-start)]/80">AUTHENTICATION</span>
               </div>
               <h1 className="text-5xl md:text-6xl font-display font-bold leading-tight tracking-tighter mb-6">
                 {mode === 'login' ? (
-                  <>WELCOME <span className="gold-text">BACK</span></>
+                  <>WELCOME <span className="blue-text">BACK</span></>
                 ) : (
-                  <>JOIN THE <span className="gold-text">CLUB</span></>
+                  <>JOIN THE <span className="blue-text">CLUB</span></>
                 )}
               </h1>
               <p className="text-sm text-zinc-500 font-bold uppercase tracking-[0.2em]">
@@ -185,20 +197,20 @@ const Auth = () => {
                 <div className="flex items-center justify-between ml-4">
                   <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-600">Password</label>
                   {mode === 'login' && (
-                    <button type="button" className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500 hover:text-amber-400 transition-colors">
+                    <Link href="/forgot-password" title="Forgot Password" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--c-6-start)] hover:text-[var(--c-6-start)]/80 transition-colors">
                       FORGOT?
-                    </button>
+                    </Link>
                   )}
                 </div>
                 <div className="relative group">
-                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-amber-500 transition-colors" />
+                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-[var(--c-6-start)] transition-colors" />
                   <input 
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full pl-16 pr-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
+                    placeholder="********"
+                    className="w-full pl-16 pr-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-[var(--c-6-start)]/50 focus:ring-4 focus:ring-[var(--c-6-start)]/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
                   />
                 </div>
               </div>
@@ -213,37 +225,45 @@ const Auth = () => {
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
                     <span>{error}</span>
                   </div>
-                  <button 
-                    type="button"
-                    onClick={() => setShowDebug(!showDebug)}
-                    className="text-[8px] text-zinc-500 hover:text-zinc-400 mt-2 self-start"
-                  >
-                    {showDebug ? "HIDE DEBUG INFO" : "SHOW DEBUG INFO"}
-                  </button>
-                  {showDebug && (
-                    <div className="mt-2 p-4 bg-black/40 rounded-2xl font-mono text-[8px] space-y-1 lowercase tracking-normal">
-                      <div>URL: {supabaseUrl || "MISSING"}</div>
-                      <div>KEY: {maskString(supabaseAnonKey)}</div>
-                      <div>CONFIGURED: {isConfigured ? "YES" : "NO"}</div>
-                      <div className="pt-2 flex flex-col gap-1">
-                        <button 
-                          type="button"
-                          onClick={testConnection}
-                          className="text-amber-500 hover:text-amber-400 underline self-start"
-                        >
-                          TEST CONNECTION
-                        </button>
-                        {testResult && <div className="text-zinc-400 italic">{testResult}</div>}
-                      </div>
-                    </div>
-                  )}
                 </motion.div>
               )}
+
+              <div className="flex flex-col items-center gap-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowDebug(!showDebug)}
+                  className="text-[8px] text-zinc-600 hover:text-zinc-400 uppercase tracking-widest"
+                >
+                  {showDebug ? "Hide Debug Info" : "Show Debug Info"}
+                </button>
+                
+                {showDebug && (
+                  <div className="w-full p-4 bg-black/40 rounded-2xl font-mono text-[8px] space-y-1 lowercase tracking-normal text-left">
+                    <div>URL: {supabaseUrl || "MISSING"}</div>
+                    <div>KEY: {maskString(supabaseAnonKey)}</div>
+                    <div>CONFIGURED: {isConfigured ? "YES" : "NO"}</div>
+                    <div className="pt-2 flex flex-col gap-1">
+                      <div className="text-zinc-500">Logged In: {currentSession ? currentSession.user.email : "NO"}</div>
+                      {currentSession && (
+                        <div className="text-zinc-500">Verified: {currentSession.user.email_confirmed_at ? "YES" : "NO"}</div>
+                      )}
+                      <button 
+                        type="button"
+                        onClick={testConnection}
+                        className="text-amber-500 hover:text-amber-400 underline self-start"
+                      >
+                        TEST CONNECTION
+                      </button>
+                      {testResult && <div className="text-zinc-400 italic">{testResult}</div>}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full py-6 bg-amber-500 text-black font-bold uppercase tracking-[0.3em] text-xs rounded-full hover:bg-amber-400 transition-all flex items-center justify-center gap-4 shadow-2xl shadow-amber-500/30 disabled:opacity-50 disabled:cursor-not-allowed group"
+                className="w-full py-6 btn-metallic-blue flex items-center justify-center gap-4 group"
               >
                 {loading ? (
                   <Loader2 className="w-6 h-6 animate-spin" />
@@ -259,10 +279,10 @@ const Auth = () => {
             <div className="mt-16 text-center">
               <button 
                 onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-amber-500 transition-colors"
+                className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-[var(--c-6-start)] transition-colors"
               >
                 {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
-                <span className="text-amber-500 underline underline-offset-8 decoration-2">
+                <span className="text-[var(--c-6-start)] underline underline-offset-8 decoration-2">
                   {mode === 'login' ? 'Sign Up' : 'Log In'}
                 </span>
               </button>

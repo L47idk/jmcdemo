@@ -6,9 +6,12 @@ import Image from "next/image";
 import { useContent } from "@/context/ContentContext";
 import ContactModal from "@/components/ContactModal";
 
+import { usePerformance } from "@/hooks/usePerformance";
+
 const Footer = () => {
   const { content } = useContent();
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const { shouldReduceGfx } = usePerformance();
   const clubName = content?.site?.clubName || 'Josephite Math Club';
 
   return (
@@ -25,6 +28,7 @@ const Footer = () => {
                   fill
                   className="object-contain"
                   referrerPolicy="no-referrer"
+                  fetchPriority="high"
                 />
               </div>
               <div className="font-display font-bold leading-tight text-white">
@@ -37,9 +41,9 @@ const Footer = () => {
           <div className="md:col-span-2 space-y-6">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs">Navigation</h4>
             <ul className="space-y-4">
-              <li><Link href="/" className="text-sm hover:text-amber-400 transition-colors">Home</Link></li>
-              <li><Link href="/about" className="text-sm hover:text-amber-400 transition-colors">About</Link></li>
-              <li><Link href="/panel" className="text-sm hover:text-amber-400 transition-colors">Panel</Link></li>
+              <li><Link href="/" className="text-sm hover:text-[var(--c-3-start)] transition-colors">Home</Link></li>
+              <li><Link href="/about" className="text-sm hover:text-[var(--c-3-start)] transition-colors">About</Link></li>
+              <li><Link href="/panel" className="text-sm hover:text-[var(--c-3-start)] transition-colors">Panel</Link></li>
             </ul>
           </div>
 
@@ -47,12 +51,11 @@ const Footer = () => {
           <div className="md:col-span-2 space-y-6">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs">Explore</h4>
             <ul className="space-y-4">
-              <li><Link href="/notices" className="text-sm hover:text-amber-400 transition-colors">Notices</Link></li>
-              <li><Link href="/#memories" className="text-sm hover:text-amber-400 transition-colors">Gallery</Link></li>
+              <li><Link href="/#memories" className="text-sm hover:text-[var(--c-3-start)] transition-colors">Gallery</Link></li>
               <li>
                 <button 
                   onClick={() => setIsContactOpen(true)}
-                  className="text-sm hover:text-amber-400 transition-colors"
+                  className="text-sm hover:text-[var(--c-3-start)] transition-colors"
                 >
                   Contact
                 </button>
@@ -68,9 +71,9 @@ const Footer = () => {
               <input 
                 type="email" 
                 placeholder="Email address" 
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all placeholder:text-zinc-600"
+                className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--c-3-start)]/50 transition-all placeholder:text-zinc-600"
               />
-              <button className="bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-widest shadow-lg shadow-amber-500/20">
+              <button className="btn-metallic-blue py-3">
                 Subscribe
               </button>
             </div>

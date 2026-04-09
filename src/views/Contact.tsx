@@ -4,9 +4,12 @@ import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, MessageSquare, Globe, Clock, Loader2, CheckCircle2, Sparkles } from 'lucide-react';
 import ScrollReveal from '../components/ScrollReveal';
 
+import { usePerformance } from '../hooks/usePerformance';
+
 const Contact = () => {
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
+  const { shouldReduceGfx } = usePerformance();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,8 +30,12 @@ const Contact = () => {
   return (
     <div className="relative min-h-screen bg-[#050505] overflow-hidden">
       {/* Background Glows */}
-      <div className="atmospheric-glow w-[500px] h-[500px] bg-amber-500/5 -top-48 -left-24" />
-      <div className="atmospheric-glow w-[600px] h-[600px] bg-indigo-500/5 bottom-0 -right-24" />
+      {!shouldReduceGfx && (
+        <>
+          <div className="atmospheric-glow w-[500px] h-[500px] bg-[var(--c-6-start)]/5 -top-48 -left-24" />
+          <div className="atmospheric-glow w-[600px] h-[600px] bg-[var(--c-2-start)]/5 bottom-0 -right-24" />
+        </>
+      )}
 
       <div className="pt-40 pb-32 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,12 +44,12 @@ const Contact = () => {
           <ScrollReveal>
             <div className="max-w-5xl mb-32">
               <div className="flex items-center gap-4 mb-8">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-amber-500/80">CONTACT US</span>
+                <Sparkles className="w-5 h-5 text-[var(--c-6-start)]" />
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[var(--c-6-start)]/80">CONTACT US</span>
               </div>
               <h1 className="text-7xl md:text-[9rem] font-display font-bold leading-[0.85] tracking-tighter mb-12">
                 <span className="block">GET IN</span>
-                <span className="gold-text">TOUCH</span>
+                <span className="blue-text">TOUCH</span>
               </h1>
               <p className="text-xl md:text-3xl text-zinc-400 font-light leading-relaxed max-w-3xl">
                 Have questions about our events or want to join the club? We&apos;re here to help you on your mathematical journey.
@@ -56,9 +63,9 @@ const Contact = () => {
               <ScrollReveal direction="left">
                 <div className="space-y-8">
                   {contactInfo.map((info, i) => (
-                    <div key={i} className="group relative p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-amber-500/30 transition-all duration-500 overflow-hidden">
+                    <div key={i} className={`group relative p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 ${!shouldReduceGfx && 'hover:border-[var(--c-6-start)]/30 transition-all duration-500'} overflow-hidden`}>
                       <div className="flex items-start gap-8 relative z-10">
-                        <div className="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-black transition-all duration-500 text-amber-500">
+                        <div className={`w-16 h-16 rounded-3xl bg-[var(--c-6-start)]/10 border border-[var(--c-6-start)]/20 flex items-center justify-center flex-shrink-0 ${!shouldReduceGfx && 'group-hover:scale-110 group-hover:bg-[var(--c-6-start)] group-hover:text-white transition-all duration-500'} text-[var(--c-6-start)]`}>
                           <info.icon className="w-7 h-7" />
                         </div>
                         <div>
@@ -67,17 +74,17 @@ const Contact = () => {
                           <p className="text-sm text-zinc-500 font-medium">{info.sub}</p>
                         </div>
                       </div>
-                      <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                      {!shouldReduceGfx && <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[var(--c-6-start)]/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />}
                     </div>
                   ))}
                 </div>
               </ScrollReveal>
 
               <ScrollReveal direction="left" delay={0.2}>
-                <div className="p-10 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/10 relative overflow-hidden">
+                <div className="p-10 rounded-[2.5rem] bg-[var(--c-6-start)]/5 border border-[var(--c-6-start)]/10 relative overflow-hidden">
                   <div className="relative z-10">
                     <h3 className="text-xl font-display font-bold mb-8 flex items-center gap-3">
-                      <Clock className="w-6 h-6 text-amber-500" />
+                      <Clock className="w-6 h-6 text-[var(--c-6-start)]" />
                       OFFICE HOURS
                     </h3>
                     <div className="space-y-6">
@@ -103,11 +110,11 @@ const Contact = () => {
             <div className="lg:col-span-7">
               <ScrollReveal direction="right">
                 <div className="p-12 md:p-16 rounded-[3rem] bg-white/[0.02] border border-white/10 backdrop-blur-3xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-[120px] -mr-48 -mt-48" />
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--c-6-start)]/5 rounded-full blur-[120px] -mr-48 -mt-48" />
                   
                   <div className="relative z-10">
                     <div className="flex items-center gap-6 mb-16">
-                      <div className="w-16 h-16 rounded-3xl bg-amber-500 flex items-center justify-center text-black shadow-2xl shadow-amber-500/20">
+                      <div className="w-16 h-16 rounded-3xl bg-[var(--c-6-start)] flex items-center justify-center text-white shadow-2xl shadow-[var(--c-6-start)]/20">
                         <MessageSquare className="w-8 h-8" />
                       </div>
                       <div>
@@ -124,7 +131,7 @@ const Contact = () => {
                             type="text"
                             required
                             placeholder="JOHN DOE"
-                            className="w-full px-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
+                            className="w-full px-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-[var(--c-6-start)]/50 focus:ring-4 focus:ring-[var(--c-6-start)]/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
                           />
                         </div>
                         <div className="space-y-4">
@@ -133,7 +140,7 @@ const Contact = () => {
                             type="email"
                             required
                             placeholder="NAME@EXAMPLE.COM"
-                            className="w-full px-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
+                            className="w-full px-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-[var(--c-6-start)]/50 focus:ring-4 focus:ring-[var(--c-6-start)]/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
                           />
                         </div>
                       </div>
@@ -143,7 +150,7 @@ const Contact = () => {
                           type="text"
                           required
                           placeholder="HOW CAN WE HELP?"
-                          className="w-full px-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
+                          className="w-full px-8 py-5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-[var(--c-6-start)]/50 focus:ring-4 focus:ring-[var(--c-6-start)]/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase"
                         />
                       </div>
                       <div className="space-y-4">
@@ -152,17 +159,17 @@ const Contact = () => {
                           required
                           rows={6}
                           placeholder="TELL US MORE ABOUT YOUR INQUIRY..."
-                          className="w-full px-8 py-6 bg-white/5 border border-white/10 rounded-[2rem] focus:outline-none focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase resize-none"
+                          className="w-full px-8 py-6 bg-white/5 border border-white/10 rounded-[2rem] focus:outline-none focus:border-[var(--c-6-start)]/50 focus:ring-4 focus:ring-[var(--c-6-start)]/10 transition-all text-white placeholder:text-zinc-800 font-bold text-[10px] tracking-widest uppercase resize-none"
                         />
                       </div>
 
                       <button 
                         type="submit"
                         disabled={loading || success}
-                        className={`w-full py-6 rounded-full font-bold uppercase tracking-[0.3em] text-xs transition-all duration-500 flex items-center justify-center gap-4 group ${
+                        className={`w-full py-6 flex items-center justify-center gap-4 group ${
                           success 
-                            ? 'bg-emerald-500 text-white' 
-                            : 'bg-amber-500 text-black hover:bg-amber-400 shadow-2xl shadow-amber-500/30'
+                            ? 'bg-emerald-500 text-white rounded-full font-bold uppercase tracking-[0.3em] text-xs' 
+                            : 'btn-metallic-blue'
                         }`}
                       >
                         {loading ? (

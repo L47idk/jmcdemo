@@ -8,10 +8,11 @@ import {
   FileText, 
   Loader2, 
   Link as LinkIcon,
-  X,
   CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePerformance } from '../../hooks/usePerformance';
+import { resolveImageUrl } from '../../lib/utils';
 
 interface DashboardFileUploadProps {
   path?: (string | number)[];
@@ -38,6 +39,7 @@ export const DashboardFileUpload: React.FC<DashboardFileUploadProps> = ({
   accept = ".jpg,.jpeg,.png",
   description
 }) => {
+  const { shouldReduceGfx } = usePerformance();
   const isPdf = value?.toLowerCase().endsWith('.pdf');
   const fileName = value ? value.split('/').pop() : null;
 
@@ -64,9 +66,9 @@ export const DashboardFileUpload: React.FC<DashboardFileUploadProps> = ({
               {value ? (
                 <motion.div
                   key="preview"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
+                  initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
+                  animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+                  exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
                   className="h-full w-full"
                 >
                   {isPdf ? (
@@ -75,7 +77,7 @@ export const DashboardFileUpload: React.FC<DashboardFileUploadProps> = ({
                     </div>
                   ) : (
                     <Image 
-                      src={value} 
+                      src={resolveImageUrl(value)} 
                       alt="Preview" 
                       fill
                       className="object-cover" 
@@ -98,7 +100,7 @@ export const DashboardFileUpload: React.FC<DashboardFileUploadProps> = ({
             
             {uploading && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+                <Loader2 className={`w-6 h-6 text-amber-500 ${shouldReduceGfx ? '' : 'animate-spin'}`} />
               </div>
             )}
           </div>

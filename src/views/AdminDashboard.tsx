@@ -30,7 +30,9 @@ import {
   Target,
   Rocket,
   Globe,
+  Camera,
   AlertTriangle,
+  AlertCircle,
   CheckCircle,
   BookOpen,
   Info,
@@ -49,12 +51,40 @@ import { DashboardFormField } from '../components/dashboard/DashboardFormField';
 import { DashboardButton } from '../components/dashboard/DashboardButton';
 import { DashboardFileUpload } from '../components/dashboard/DashboardFileUpload';
 import ConfirmModal from '../components/ConfirmModal';
+import Image from 'next/image';
+import { resolveImageUrl } from '../lib/utils';
+
+import { Skeleton } from '../components/Skeleton';
+
+import { usePerformance } from '../hooks/usePerformance';
+
+const AdminSkeleton = () => (
+  <div className="min-h-screen bg-[#080808] flex">
+    <div className="w-64 border-r border-white/5 p-6 space-y-4">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <Skeleton key={i} className="h-12 w-full rounded-xl" />
+      ))}
+    </div>
+    <div className="flex-1 p-12 space-y-8">
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-12 w-64" />
+        <Skeleton className="h-12 w-32 rounded-xl" />
+      </div>
+      <Skeleton className="h-64 w-full rounded-3xl" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Skeleton className="h-48 rounded-3xl" />
+        <Skeleton className="h-48 rounded-3xl" />
+      </div>
+    </div>
+  </div>
+);
 
 const AdminDashboard = () => {
-  const { content, loading: contentLoading, saveAllContent } = useContent();
+  const { content, loading: contentLoading, saveAllContent, seedDatabase } = useContent();
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
+  const { shouldReduceGfx } = usePerformance();
   
   const [activeTab, setActiveTab] = useState('home');
   const [executiveTab, setExecutiveTab] = useState<'current' | 'recent' | 'former'>('current');
@@ -68,21 +98,23 @@ const AdminDashboard = () => {
 
   const [members, setMembers] = useState<any[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
+  const [memberError, setMemberError] = useState<string | null>(null);
   const [memberSearch, setMemberSearch] = useState('');
   const [memberFilter, setMemberFilter] = useState('all'); // 'all', 'yes', 'no'
 
   const fetchMembers = useCallback(async () => {
     setLoadingMembers(true);
+    setMemberError(null);
     try {
       const { data, error } = await supabase
         .from('member')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
       
       if (error) throw error;
       setMembers(data || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching members:', err);
+      setMemberError(err.message || 'Failed to fetch members');
       showToast('Failed to fetch members', 'error');
     } finally {
       setLoadingMembers(false);
@@ -91,7 +123,6 @@ const AdminDashboard = () => {
 
   const toggleVerified = async (memberId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'yes' ? 'no' : 'yes';
-    console.log(`Toggling member ${memberId} status from ${currentStatus} to ${newStatus}`);
     try {
       const { error } = await supabase
         .from('member')
@@ -111,6 +142,25 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleMemberPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, memberId: string) => {
+    await handleFileUpload(e, undefined, async (url) => {
+      try {
+        const { error } = await supabase
+          .from('member')
+          .update({ photo_url: url })
+          .eq('id', memberId);
+        
+        if (error) throw error;
+        
+        setMembers(prev => prev.map(m => m.id === memberId ? { ...m, photo_url: url } : m));
+        showToast("Member photo updated successfully", "success");
+      } catch (err: any) {
+        console.error("Error updating member photo:", err);
+        showToast(`Failed to update member photo: ${err.message}`, "error");
+      }
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, path?: (string | number)[], callback?: (url: string) => void) => {
     if (!isSupabaseConfigured) {
       showToast("Database is not configured. File upload is disabled.", "error");
@@ -118,6 +168,13 @@ const AdminDashboard = () => {
     }
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Check file size (limit to 10MB for safety)
+    const MAX_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      showToast("File is too large. Maximum size is 10MB.", "error");
+      return;
+    }
 
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'image/webp'];
     if (!validTypes.includes(file.type)) {
@@ -129,14 +186,21 @@ const AdminDashboard = () => {
     setUploading(uploadId);
 
     try {
-      const extension = file.name.split('.').pop();
+      const nameParts = file.name.split('.');
+      const extension = nameParts.length > 1 ? nameParts.pop() : 'png';
       const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${extension}`;
 
       const { data, error } = await supabase.storage
         .from('images')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase storage upload error:", error);
+        throw error;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('images')
@@ -146,9 +210,10 @@ const AdminDashboard = () => {
         callback(publicUrl);
       }
       showToast("File uploaded successfully!", "success");
-    } catch (error) {
-      console.error("Upload error:", error);
-      showToast("Failed to upload file.", "error");
+    } catch (error: any) {
+      console.error("Upload error details:", error);
+      const errorMessage = error.message || error.error_description || "Unknown error";
+      showToast(`Upload failed: ${errorMessage}. Ensure 'images' bucket exists and is public.`, "error");
     } finally {
       setUploading(null);
     }
@@ -161,10 +226,15 @@ const AdminDashboard = () => {
   }, [activeTab, fetchMembers]);
 
   useEffect(() => {
-    if (!authLoading && !isAdmin) {
-      router.push('/');
+    if (!authLoading && !user) {
+      router.push('/login?redirect=/admin');
+      return;
     }
-  }, [isAdmin, authLoading, router]);
+    if (!authLoading && !isAdmin) {
+      console.log("AdminDashboard: Access denied. User is not an admin.", { user: user?.email, isAdmin });
+      // We'll show an access denied message instead of immediate redirect to help debugging
+    }
+  }, [isAdmin, authLoading, user, router]);
 
   useEffect(() => {
     if (content) {
@@ -172,10 +242,52 @@ const AdminDashboard = () => {
     }
   }, [content]);
 
-  if (authLoading || contentLoading || !localContent) {
+  if (authLoading || contentLoading || (isAdmin && !localContent)) {
+    return <AdminSkeleton />;
+  }
+
+  if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#080808]">
-        <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4">
+        <div className="atmospheric-glow w-[600px] h-[600px] bg-red-500/5 -top-48 -left-24" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full p-12 rounded-[3rem] bg-white/[0.02] border border-white/10 backdrop-blur-3xl text-center space-y-8 relative z-10"
+        >
+          <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-10 h-10 text-red-500" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-white font-display tracking-tight uppercase">Access Denied</h1>
+            <p className="text-zinc-500 text-sm font-medium leading-relaxed">
+              You do not have administrative privileges to access this dashboard.
+            </p>
+          </div>
+          <div className="p-4 bg-black/40 rounded-2xl text-[10px] font-mono text-zinc-500 text-left space-y-1">
+            <div className="flex justify-between">
+              <span>User:</span>
+              <span className="text-zinc-300">{user?.email || 'Not Logged In'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Status:</span>
+              <span className="text-amber-500 font-bold">{user ? 'Authenticated' : 'Guest'}</span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <DashboardButton 
+              label="Return Home" 
+              onClick={() => router.push('/')}
+              variant="secondary"
+            />
+            {!user && (
+              <DashboardButton 
+                label="Sign In" 
+                onClick={() => router.push('/login')}
+              />
+            )}
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -318,6 +430,8 @@ const AdminDashboard = () => {
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'notices', label: 'Notices', icon: Bell },
     { id: 'panel', label: 'Panel', icon: Users },
+    { id: 'members_list', label: 'Members List', icon: Users },
+    { id: 'gallery', label: 'Gallery', icon: LayoutDashboard },
     { id: 'members', label: 'Members', icon: Award },
     { id: 'site', label: 'Site Config', icon: Settings },
   ];
@@ -338,9 +452,9 @@ const AdminDashboard = () => {
         {activeTab === 'home' && (
           <motion.div
             key="home"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
             className="space-y-8"
           >
             <DashboardSection icon={LayoutDashboard} title="Hero Section" description="The first thing visitors see on your homepage.">
@@ -579,9 +693,9 @@ const AdminDashboard = () => {
         {activeTab === 'about' && (
           <motion.div
             key="about"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
             className="space-y-8"
           >
             <DashboardSection icon={FileText} title="About Page Content" description="Define your club's history and mission.">
@@ -758,9 +872,9 @@ const AdminDashboard = () => {
         {activeTab === 'events' && (
           <motion.div
             key="events"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
             className="space-y-8"
           >
             <DashboardSection icon={Calendar} title="Events Page Header" description="Customize the title and description of the Events page.">
@@ -880,9 +994,9 @@ const AdminDashboard = () => {
         {activeTab === 'notices' && (
           <motion.div
             key="notices"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
             className="space-y-8"
           >
             <DashboardSection icon={Bell} title="Notice Board Header" description="Customize the title and description of the Notice Board page.">
@@ -1004,9 +1118,9 @@ const AdminDashboard = () => {
         {activeTab === 'panel' && (
           <motion.div
             key="panel"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
             className="space-y-8"
           >
             <DashboardSection title="Panel Page Content" description="Manage titles and subtitles for the Panel page" icon={Users}>
@@ -1039,6 +1153,8 @@ const AdminDashboard = () => {
                       value={m.imageUrl} 
                       uploading={uploading === `panel-moderators-${i}`}
                       onUpload={(ev) => handleFileUpload(ev, [`panel`, `moderators`, i], (url) => updateListItem('panel', 'moderators', i, { imageUrl: url }))} 
+                      onDelete={() => updateListItem('panel', 'moderators', i, { imageUrl: '' })}
+                      onChange={(path, val) => updateListItem('panel', 'moderators', i, { imageUrl: val })}
                     />
                   </div>
                 ))}
@@ -1123,6 +1239,8 @@ const AdminDashboard = () => {
                                   value={m.imageUrl} 
                                   uploading={uploading === `panel-executive-${executiveTab}-${category.id}-${i}`}
                                   onUpload={(ev) => handleFileUpload(ev, [`panel`, `executive`, executiveTab, category.id, i], (url) => updateDeepListItem(['panel', 'executive', executiveTab, category.id], i, { imageUrl: url }))} 
+                                  onDelete={() => updateDeepListItem(['panel', 'executive', executiveTab, category.id], i, { imageUrl: '' })}
+                                  onChange={(path, val) => updateDeepListItem(['panel', 'executive', executiveTab, category.id], i, { imageUrl: val })}
                                 />
                               </div>
                             </div>
@@ -1174,6 +1292,8 @@ const AdminDashboard = () => {
                                     value={s.imageUrl} 
                                     uploading={uploading === `panel-executive-${executiveTab}-secretaries-${sec.id}-${i}`}
                                     onUpload={(ev) => handleFileUpload(ev, [`panel`, `executive`, executiveTab, `secretaries`, sec.id, i], (url) => updateDeepListItem(['panel', 'executive', executiveTab, 'secretaries', sec.id], i, { imageUrl: url }))} 
+                                    onDelete={() => updateDeepListItem(['panel', 'executive', executiveTab, 'secretaries', sec.id], i, { imageUrl: '' })}
+                                    onChange={(path, val) => updateDeepListItem(['panel', 'executive', executiveTab, 'secretaries', sec.id], i, { imageUrl: val })}
                                   />
                                 </div>
                               ))}
@@ -1192,12 +1312,133 @@ const AdminDashboard = () => {
           </motion.div>
         )}
 
+        {activeTab === 'members_list' && (
+          <motion.div
+            key="members_list"
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
+            className="space-y-8"
+          >
+            <DashboardSection icon={Users} title="Members List Header" description="Customize the title and description of the Members List section.">
+              <div className="grid grid-cols-1 gap-6">
+                <DashboardFormField 
+                  label="Section Title" 
+                  value={localContent?.members_list?.title} 
+                  onChange={(val) => updateField('members_list', 'title', val)} 
+                />
+                <DashboardFormField 
+                  label="Section Subtitle" 
+                  value={localContent?.members_list?.subtitle} 
+                  onChange={(val) => updateField('members_list', 'subtitle', val)} 
+                />
+                <DashboardFormField 
+                  label="Section Description" 
+                  type="textarea"
+                  value={localContent?.members_list?.description} 
+                  onChange={(val) => updateField('members_list', 'description', val)} 
+                />
+              </div>
+            </DashboardSection>
+
+            <DashboardSection icon={Users} title="Manage Members" description="Add or edit members in the static list.">
+              <div className="grid grid-cols-1 gap-8">
+                {(localContent.members_list?.members || []).map((m: any, i: number) => (
+                  <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4 relative group">
+                    <button 
+                      onClick={() => removeListItem('members_list', 'members', i)}
+                      className="absolute top-4 right-4 p-2 text-zinc-600 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <DashboardFormField label="Name" value={m.name} onChange={(val) => updateListItem('members_list', 'members', i, { name: val })} />
+                      <DashboardFormField label="Role/Batch" value={m.role} onChange={(val) => updateListItem('members_list', 'members', i, { role: val })} />
+                    </div>
+                    <DashboardFileUpload 
+                      label="Profile Image" 
+                      value={m.imageUrl} 
+                      uploading={uploading === `members_list-members-${i}`}
+                      onUpload={(ev) => handleFileUpload(ev, [`members_list`, `members`, i], (url) => updateListItem('members_list', 'members', i, { imageUrl: url }))} 
+                      onDelete={() => updateListItem('members_list', 'members', i, { imageUrl: '' })}
+                      onChange={(path, val) => updateListItem('members_list', 'members', i, { imageUrl: val })}
+                    />
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addListItem('members_list', 'members', { name: '', role: '', imageUrl: '' })}
+                  className="w-full py-4 border-2 border-dashed border-white/10 rounded-2xl text-zinc-500 hover:text-amber-500 hover:border-amber-500/50 transition-all flex items-center justify-center gap-2 font-bold"
+                >
+                  <Plus className="w-5 h-5" /> Add New Member
+                </button>
+              </div>
+            </DashboardSection>
+          </motion.div>
+        )}
+
+        {activeTab === 'gallery' && (
+          <motion.div
+            key="gallery"
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
+            className="space-y-8"
+          >
+            <DashboardSection icon={LayoutDashboard} title="Gallery Page Management" description="Manage the images displayed on the dedicated Gallery page.">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {(localContent.gallery_page?.images || []).map((url: string, i: number) => (
+                  <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 relative group">
+                    <button 
+                      onClick={() => {
+                        const newList = localContent.gallery_page.images.filter((_: any, idx: number) => idx !== i);
+                        updateField('gallery_page', 'images', newList);
+                      }}
+                      className="absolute top-2 right-2 p-1 text-zinc-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                    <DashboardFileUpload 
+                      label={`Gallery Image ${i + 1}`} 
+                      value={url} 
+                      uploading={uploading === `gallery_page-images-${i}`}
+                      onUpload={(ev) => handleFileUpload(ev, [`gallery_page`, `images`, i], (newUrl) => {
+                        const newList = [...localContent.gallery_page.images];
+                        newList[i] = newUrl;
+                        updateField('gallery_page', 'images', newList);
+                      })} 
+                      onDelete={() => {
+                        const newList = [...localContent.gallery_page.images];
+                        newList[i] = '';
+                        updateField('gallery_page', 'images', newList);
+                      }}
+                      onChange={(path, val) => {
+                        const newList = [...localContent.gallery_page.images];
+                        newList[i] = val;
+                        updateField('gallery_page', 'images', newList);
+                      }}
+                    />
+                  </div>
+                ))}
+                <button 
+                  onClick={() => {
+                    const newList = [...(localContent?.gallery_page?.images || []), ""];
+                    updateField('gallery_page', 'images', newList);
+                  }}
+                  className="w-full py-12 border-2 border-dashed border-white/10 rounded-xl text-zinc-500 hover:text-amber-500 hover:border-amber-500/50 transition-all flex items-center justify-center gap-2 font-bold text-[10px] uppercase tracking-widest"
+                >
+                  <Plus className="w-5 h-5" /> Add Image to Gallery
+                </button>
+              </div>
+            </DashboardSection>
+          </motion.div>
+        )}
+
         {activeTab === 'members' && (
           <motion.div
             key="members"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
             className="space-y-8"
           >
             <DashboardSection 
@@ -1241,12 +1482,26 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
+                {memberError && (
+                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-bold uppercase tracking-widest flex items-center gap-3">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Error: {memberError}</span>
+                    <button 
+                      onClick={fetchMembers}
+                      className="ml-auto underline hover:text-red-400"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
                 <div className="overflow-x-auto rounded-2xl border border-white/5 bg-white/[0.01]">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-white/5 border-b border-white/5">
-                        <th className="py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Name</th>
+                        <th className="py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Member</th>
                         <th className="py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Class/Roll</th>
+                        <th className="py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Membership</th>
                         <th className="py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Payment</th>
                         <th className="py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Verified</th>
                         <th className="py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500 text-right">Action</th>
@@ -1263,13 +1518,49 @@ const AdminDashboard = () => {
                         .map((m) => (
                           <tr key={m.id} className="group hover:bg-white/[0.02] transition-colors">
                             <td className="py-4 px-4">
-                              <div className="flex flex-col">
-                                <span className="text-sm font-bold text-white">{m.full_name}</span>
-                                <span className="text-[10px] text-zinc-500">{m.email}</span>
+                              <div className="flex items-center gap-3">
+                                <div className="relative group/avatar">
+                                  {m.photo_url ? (
+                                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
+                                      <Image src={resolveImageUrl(m.photo_url)} alt="" fill className="object-cover" referrerPolicy="no-referrer" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                                      <UserIcon className="w-5 h-5 text-zinc-500" />
+                                    </div>
+                                  )}
+                                  <label className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity cursor-pointer rounded-full">
+                                    {uploading === `member-photo-${m.id}` ? (
+                                      <Loader2 className="w-4 h-4 text-amber-500 animate-spin" />
+                                    ) : (
+                                      <Camera className="w-4 h-4 text-white" />
+                                    )}
+                                    <input 
+                                      type="file" 
+                                      className="hidden" 
+                                      accept="image/*"
+                                      onChange={(e) => {
+                                        setUploading(`member-photo-${m.id}`);
+                                        handleMemberPhotoUpload(e, m.id).finally(() => setUploading(null));
+                                      }}
+                                    />
+                                  </label>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-sm font-bold text-white">{m.full_name}</span>
+                                  <span className="text-[10px] text-zinc-500">{m.email_address || m.email}</span>
+                                  {m.phone && <span className="text-[9px] text-zinc-600">PH: {m.phone}</span>}
+                                </div>
                               </div>
                             </td>
                             <td className="py-4 px-4">
                               <span className="text-xs text-zinc-400">{m.class} / {m.roll}</span>
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="flex flex-col">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">{m.membership_type || 'General'}</span>
+                                {m.department && <span className="text-[9px] text-zinc-500 uppercase tracking-widest">{m.department}</span>}
+                              </div>
                             </td>
                             <td className="py-4 px-4">
                               <div className="flex flex-col gap-1">
@@ -1320,9 +1611,9 @@ const AdminDashboard = () => {
         {activeTab === 'site' && (
           <motion.div
             key="site"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, x: -20 }}
             className="space-y-8"
           >
             <DashboardSection icon={Settings} title="Global Site Settings" description="Configure basic site information.">
@@ -1365,7 +1656,7 @@ const AdminDashboard = () => {
                 />
                 <div className="space-y-4 md:col-span-2">
                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Social Media</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DashboardFormField 
                       label="Facebook" 
                       value={localContent?.contact?.socials?.facebook} 
@@ -1375,11 +1666,6 @@ const AdminDashboard = () => {
                       label="Instagram" 
                       value={localContent?.contact?.socials?.instagram} 
                       onChange={(val) => updateNestedField('contact', 'socials', 'instagram', val)} 
-                    />
-                    <DashboardFormField 
-                      label="LinkedIn" 
-                      value={localContent?.contact?.socials?.linkedin} 
-                      onChange={(val) => updateNestedField('contact', 'socials', 'linkedin', val)} 
                     />
                   </div>
                 </div>
@@ -1440,15 +1726,49 @@ const AdminDashboard = () => {
                     <Plus className="w-4 h-4" /> Add Step
                   </button>
                 </div>
+                <div className="md:col-span-2 pt-4 border-t border-white/5">
+                  <DashboardFormField 
+                    label="Membership Declaration" 
+                    type="textarea"
+                    value={localContent?.registration?.declaration} 
+                    onChange={(val) => updateField('registration', 'declaration', val)} 
+                    description="The agreement text members must accept during registration."
+                  />
+                </div>
               </div>
             </DashboardSection>
 
             <DashboardSection icon={ShieldAlert} title="Database Setup" description="If you&apos;re seeing database errors, follow these steps to set up your Supabase project.">
-              <div className="space-y-4">
-                <p className="text-sm text-zinc-400">
-                  Copy and run the following SQL in your Supabase SQL Editor to create the required tables and security policies:
-                </p>
-                <div className="p-4 rounded-xl bg-black/40 border border-white/10 font-mono text-[10px] text-zinc-300 overflow-x-auto whitespace-pre">
+              <div className="space-y-6">
+                <div className="p-6 rounded-2xl bg-amber-500/5 border border-amber-500/10 space-y-4">
+                  <div className="flex items-center gap-3 text-amber-500">
+                    <Rocket className="w-5 h-5" />
+                    <h3 className="text-sm font-bold uppercase tracking-widest">Initialization</h3>
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    If your database is empty, click the button below to push the current website content to Supabase. 
+                    This will ensure your website has data to display.
+                  </p>
+                  <DashboardButton 
+                    label="Push Content to Database" 
+                    onClick={async () => {
+                      try {
+                        await seedDatabase();
+                        showToast("Database seeded successfully!", "success");
+                      } catch (err: any) {
+                        showToast(`Seeding failed: ${err.message}`, "error");
+                      }
+                    }}
+                    icon={Zap}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-sm text-zinc-400">
+                    Copy and run the following SQL in your Supabase SQL Editor to create the required tables and security policies:
+                  </p>
+                  <div className="p-4 rounded-xl bg-black/40 border border-white/10 font-mono text-[10px] text-zinc-300 overflow-x-auto whitespace-pre">
 {`-- 1. Create or Repair the site_content table
 do $$ 
 begin
@@ -1468,17 +1788,31 @@ end $$;
 -- 2. Enable Row Level Security
 alter table public.site_content enable row level security;
 
--- 3. Create or Update policies
+-- 2.5 Create is_admin helper function
+create or replace function public.is_admin()
+returns boolean as $$
+begin
+  return exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  ) or (
+    (auth.jwt() ->> 'email' = 'l47idkpro@gmail.com' or auth.jwt() ->> 'email' = 'jarysucksatgames@gmail.com')
+    and (auth.jwt() ->> 'email_verified')::boolean = true
+  );
+end;
+$$ language plpgsql security definer;
+
+-- 3. Create or Update policies for site_content
 drop policy if exists "Allow public read access" on public.site_content;
 create policy "Allow public read access"
   on public.site_content for select
   using ( true );
 
-drop policy if exists "Allow admin update access" on public.site_content;
-create policy "Allow admin update access"
+drop policy if exists "Allow admin full access" on public.site_content;
+create policy "Allow admin full access"
   on public.site_content for all
-  using ( auth.role() = 'authenticated' )
-  with check ( auth.role() = 'authenticated' );
+  using ( is_admin() )
+  with check ( is_admin() );
 
 -- 4. Create or Repair the profiles and member tables
 do $$ 
@@ -1517,6 +1851,12 @@ begin
     end if;
     if not exists (select from information_schema.columns where table_name = 'profiles' and column_name = 'roll') then
       alter table public.profiles add column roll text;
+    end if;
+    if not exists (select from information_schema.columns where table_name = 'profiles' and column_name = 'phone') then
+      alter table public.profiles add column phone text;
+    end if;
+    if not exists (select from information_schema.columns where table_name = 'profiles' and column_name = 'membership_type') then
+      alter table public.profiles add column membership_type text;
     end if;
     if not exists (select from information_schema.columns where table_name = 'profiles' and column_name = 'intra_events_chosen') then
       alter table public.profiles add column intra_events_chosen boolean default false;
@@ -1564,9 +1904,28 @@ begin
     if not exists (select from information_schema.columns where table_name = 'member' and column_name = 'verified') then
       alter table public.member add column verified text default 'no';
     end if;
+    if not exists (select from information_schema.columns where table_name = 'member' and column_name = 'phone') then
+      alter table public.member add column phone text;
+    end if;
+    if not exists (select from information_schema.columns where table_name = 'member' and column_name = 'email_address') then
+      alter table public.member add column email_address text;
+    end if;
+    if not exists (select from information_schema.columns where table_name = 'member' and column_name = 'membership_type') then
+      alter table public.member add column membership_type text;
+    end if;
+    if not exists (select from information_schema.columns where table_name = 'member' and column_name = 'department') then
+      alter table public.member add column department text;
+    end if;
+    if not exists (select from information_schema.columns where table_name = 'member' and column_name = 'photo_url') then
+      alter table public.member add column photo_url text;
+    end if;
+    if not exists (select from information_schema.columns where table_name = 'member' and column_name = 'created_at') then
+      alter table public.member add column created_at timestamp with time zone default now();
+    end if;
   end if;
 end $$;
 
+-- Enable RLS
 alter table public.profiles enable row level security;
 alter table public.member enable row level security;
 
@@ -1579,18 +1938,25 @@ create policy "Users can view their own profile"
 drop policy if exists "Admins can view all profiles" on public.profiles;
 create policy "Admins can view all profiles"
   on public.profiles for select
-  using ( (select role from public.profiles where id = auth.uid()) = 'admin' );
+  using ( is_admin() );
 
 drop policy if exists "Users can update their own profile" on public.profiles;
 create policy "Users can update their own profile"
   on public.profiles for update
-  using ( auth.uid() = id );
+  using ( auth.uid() = id )
+  with check ( auth.uid() = id );
+
+drop policy if exists "Admins can update all profiles" on public.profiles;
+create policy "Admins can update all profiles"
+  on public.profiles for all
+  using ( is_admin() )
+  with check ( is_admin() );
 
 -- Policies for member
 drop policy if exists "Admins can view all members" on public.member;
 create policy "Admins can view all members"
   on public.member for select
-  using ( (select role from public.profiles where id = auth.uid()) = 'admin' );
+  using ( is_admin() );
 
 drop policy if exists "Users can view their own member entry" on public.member;
 create policy "Users can view their own member entry"
@@ -1602,10 +1968,17 @@ create policy "Users can insert their own member entry"
   on public.member for insert
   with check ( auth.uid() = id );
 
-drop policy if exists "Admins can update all members" on public.member;
-create policy "Admins can update all members"
+drop policy if exists "Users can update their own member entry" on public.member;
+create policy "Users can update their own member entry"
   on public.member for update
-  using ( (select role from public.profiles where id = auth.uid()) = 'admin' );
+  using ( auth.uid() = id )
+  with check ( auth.uid() = id );
+
+drop policy if exists "Admins can full access all members" on public.member;
+create policy "Admins can full access all members"
+  on public.member for all
+  using ( is_admin() )
+  with check ( is_admin() );
 
 -- 5. Create or Update handle_new_user trigger
 create or replace function public.handle_new_user()
@@ -1638,14 +2011,15 @@ on conflict (id) do nothing;
 drop policy if exists "Public Access" on storage.objects;
 create policy "Public Access" on storage.objects for select using (bucket_id = 'images');
 
-drop policy if exists "Admin Upload" on storage.objects;
-create policy "Admin Upload" on storage.objects for insert with check (bucket_id = 'images' and (select role from public.profiles where id = auth.uid()) = 'admin');
+drop policy if exists "Admin Full Access" on storage.objects;
+create policy "Admin Full Access" on storage.objects for all using (bucket_id = 'images' and public.is_admin());
 
-drop policy if exists "Admin Update" on storage.objects;
-create policy "Admin Update" on storage.objects for update with check (bucket_id = 'images' and (select role from public.profiles where id = auth.uid()) = 'admin');
-
-drop policy if exists "Admin Delete" on storage.objects;
-create policy "Admin Delete" on storage.objects for delete with check (bucket_id = 'images' and (select role from public.profiles where id = auth.uid()) = 'admin');
+drop policy if exists "Users can upload their own photo" on storage.objects;
+create policy "Users can upload their own photo" on storage.objects for insert with check (
+  bucket_id = 'images' and 
+  (storage.foldername(name))[1] = 'members' and 
+  (split_part(name, '/', 2) like auth.uid()::text || '-%')
+);
 `}
                 </div>
 
@@ -1667,7 +2041,7 @@ create policy "Admin Delete" on storage.objects for delete with check (bucket_id
 
                         // Convert to CSV
                         const headers = Object.keys(data[0]).join(',');
-                        const rows = data.map(row => 
+                        const rows = data.map((row: any) => 
                           Object.values(row).map(val => `"${val}"`).join(',')
                         ).join('\n');
                         const csv = `${headers}\n${rows}`;
@@ -1701,7 +2075,8 @@ create policy "Admin Delete" on storage.objects for delete with check (bucket_id
                   </p>
                 </div>
               </div>
-            </DashboardSection>
+            </div>
+          </DashboardSection>
           </motion.div>
         )}
       </AnimatePresence>

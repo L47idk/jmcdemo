@@ -179,25 +179,25 @@
       {
         "role": "Chief Moderator",
         "name": "Anthony Prince Costa",
-        "imageUrl": "/images/members/anthony.png",
+        "imageUrl": "/images/members/anthony.jpg",
         "id": "root-panel-moderators-0-dfc4k23hf"
       },
       {
         "role": "Moderator",
         "name": "Ashim Halder",
-        "imageUrl": "/images/members/ashim.png",
+        "imageUrl": "/images/members/ashim.jpg",
         "id": "root-panel-moderators-1-209b2rqxo"
       },
       {
         "role": "Moderator",
         "name": "Dipak Kumar Sarkar",
-        "imageUrl": "/images/members/dipak.png",
+        "imageUrl": "/images/members/dipak.jpg",
         "id": "root-panel-moderators-2-4litfrluq"
       },
       {
         "role": "Moderator",
         "name": "Israt Jahan Akhi",
-        "imageUrl": "/images/members/akhi.png",
+        "imageUrl": "/images/members/akhi.jpg",
         "id": "root-panel-moderators-3-uq539p2y1"
       }
     ],
@@ -207,7 +207,7 @@
           {
             "role": "President",
             "name": "Intesher Alam Manam",
-            "imageUrl": "/images/members/intesher.png",
+            "imageUrl": "/images/members/intesher.jpg",
             "id": "root-panel-executive-current-president-0-bftg3lph8"
           }
         ],
@@ -215,7 +215,7 @@
           {
             "role": "Deputy President",
             "name": "Monwar Rafat",
-            "imageUrl": "/images/members/monwar.png",
+            "imageUrl": "/images/members/monwar.jpg",
             "id": "root-panel-executive-current-deputyPresidents-0-jlrznl869"
           },
           {
@@ -229,7 +229,7 @@
           {
             "role": "General Secretary",
             "name": "Shoumik Saha Raj",
-            "imageUrl": "/images/members/shoumik.png",
+            "imageUrl": "/images/members/shoumik.jpg",
             "id": "root-panel-executive-current-generalSecretary-0-qrtly2v8v"
           }
         ],
@@ -243,7 +243,7 @@
           {
             "role": "Vice President",
             "name": "Arefin Anwar",
-            "imageUrl": "/images/members/arefin.png",
+            "imageUrl": "/images/members/arefin.jpg",
             "id": "root-panel-executive-current-vicePresidents-1-u8sastbr7"
           },
           {
@@ -279,7 +279,7 @@
           {
             "role": "Vice President",
             "name": "Imtiaz Nasif Nur",
-            "imageUrl": "/images/member/panel_26/imtiaz_nasif_nur.png",
+            "imageUrl": "/images/member/panel_26/imtiaz_nasif_nur.jpg",
             "id": "root-panel-executive-current-vicePresidents-7-q1e1ay76z"
           },
           {

@@ -59,16 +59,16 @@ import { Skeleton } from '../components/Skeleton';
 import { usePerformance } from '../hooks/usePerformance';
 
 const AdminSkeleton = () => (
-  <div className="min-h-screen bg-[#080808] flex">
-    <div className="w-64 border-r border-white/5 p-6 space-y-4">
-      {[1, 2, 3, 4, 5, 6].map((i) => (
+  <div className="min-h-screen bg-[#080808] flex flex-col lg:flex-row">
+    <div className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-white/5 p-6 space-y-4">
+      {[1, 2, 3].map((i) => (
         <Skeleton key={i} className="h-12 w-full rounded-xl" />
       ))}
     </div>
-    <div className="flex-1 p-12 space-y-8">
+    <div className="flex-1 p-6 lg:p-12 space-y-8">
       <div className="flex justify-between items-center">
-        <Skeleton className="h-12 w-64" />
-        <Skeleton className="h-12 w-32 rounded-xl" />
+        <Skeleton className="h-12 w-48 lg:w-64" />
+        <Skeleton className="h-12 w-24 lg:w-32 rounded-xl" />
       </div>
       <Skeleton className="h-64 w-full rounded-3xl" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -113,7 +113,6 @@ const AdminDashboard = () => {
       if (error) throw error;
       setMembers(data || []);
     } catch (err: any) {
-      console.error('Error fetching members:', err);
       setMemberError(err.message || 'Failed to fetch members');
       showToast('Failed to fetch members', 'error');
     } finally {
@@ -130,7 +129,6 @@ const AdminDashboard = () => {
         .eq('id', memberId);
       
       if (error) {
-        console.error('Supabase update error:', error);
         throw error;
       }
       
@@ -155,7 +153,6 @@ const AdminDashboard = () => {
         setMembers(prev => prev.map(m => m.id === memberId ? { ...m, photo_url: url } : m));
         showToast("Member photo updated successfully", "success");
       } catch (err: any) {
-        console.error("Error updating member photo:", err);
         showToast(`Failed to update member photo: ${err.message}`, "error");
       }
     });
@@ -198,7 +195,6 @@ const AdminDashboard = () => {
         });
 
       if (error) {
-        console.error("Supabase storage upload error:", error);
         throw error;
       }
 
@@ -211,7 +207,6 @@ const AdminDashboard = () => {
       }
       showToast("File uploaded successfully!", "success");
     } catch (error: any) {
-      console.error("Upload error details:", error);
       const errorMessage = error.message || error.error_description || "Unknown error";
       showToast(`Upload failed: ${errorMessage}. Ensure 'images' bucket exists and is public.`, "error");
     } finally {
@@ -231,7 +226,6 @@ const AdminDashboard = () => {
       return;
     }
     if (!authLoading && !isAdmin) {
-      console.log("AdminDashboard: Access denied. User is not an admin.", { user: user?.email, isAdmin });
       // We'll show an access denied message instead of immediate redirect to help debugging
     }
   }, [isAdmin, authLoading, user, router]);
@@ -1522,7 +1516,13 @@ const AdminDashboard = () => {
                                 <div className="relative group/avatar">
                                   {m.photo_url ? (
                                     <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 flex-shrink-0 relative">
-                                      <Image src={resolveImageUrl(m.photo_url)} alt="" fill className="object-cover" referrerPolicy="no-referrer" />
+                                      <Image 
+                                        src={resolveImageUrl(m.photo_url)} 
+                                        alt="" 
+                                        fill 
+                                        className="object-cover" 
+                                        unoptimized={!m.photo_url?.startsWith('http') && !m.photo_url?.startsWith('/uploads/')}
+                                      />
                                     </div>
                                   ) : (
                                     <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">

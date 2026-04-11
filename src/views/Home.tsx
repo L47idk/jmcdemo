@@ -11,8 +11,6 @@ import { usePerformance } from '../hooks/usePerformance';
 import { Skeleton } from '../components/Skeleton';
 import { resolveImageUrl } from '../lib/utils';
 
-import { useAnimation } from 'framer-motion';
-
 const HomeSkeleton = () => (
   <div className="min-h-screen bg-[#050505] pt-32">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,12 +50,9 @@ const Home = () => {
   const { content, loading } = useContent();
   const { home } = content;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const controls = useAnimation();
-  const [isDragging, setIsDragging] = useState(false);
-  const { shouldReduceGfx } = usePerformance();
-
+  const { shouldReduceGfx, isMobile } = usePerformance();
   const testimonials = home?.testimonials || [];
-  const duplicatedTestimonials = [...testimonials, ...testimonials, ...testimonials, ...testimonials];
+  const duplicatedTestimonials = [...testimonials, ...testimonials];
 
   const gallery = home?.gallery && home.gallery.length > 0 
     ? home.gallery
@@ -77,24 +72,6 @@ const Home = () => {
     }, 5000);
     return () => clearInterval(timer);
   }, [gallery.length]);
-
-  useEffect(() => {
-    if (!isDragging && testimonials.length > 0 && !shouldReduceGfx) {
-      controls.start({
-        x: [0, -2000],
-        transition: {
-          x: {
-            repeat: Infinity,
-            repeatType: "loop",
-            duration: 50,
-            ease: "linear",
-          },
-        },
-      });
-    } else {
-      controls.stop();
-    }
-  }, [controls, isDragging, testimonials.length, shouldReduceGfx]);
 
   if (loading) return <HomeSkeleton />;
 
@@ -224,7 +201,7 @@ const Home = () => {
               <motion.div whileHover={shouldReduceGfx ? {} : { scale: 1.05 }} whileTap={shouldReduceGfx ? {} : { scale: 0.95 }}>
                 <Link
                   href="/panel"
-                  className="px-12 py-5 btn-metallic-blue flex items-center justify-center gap-3"
+                  className="btn-premium-glow"
                 >
                   {home?.joinButtonText || "Join the Club"} <ArrowRight className="w-5 h-5" />
                 </Link>
@@ -232,7 +209,7 @@ const Home = () => {
               <motion.div whileHover={shouldReduceGfx ? {} : { scale: 1.05 }} whileTap={shouldReduceGfx ? {} : { scale: 0.95 }}>
                 <Link
                   href="/about"
-                  className="px-12 py-5 glass text-white rounded-full font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center border-white/10"
+                  className="btn-premium"
                 >
                   {home?.storyButtonText || "Our Story"}
                 </Link>
@@ -392,15 +369,8 @@ const Home = () => {
           <div className="absolute inset-y-0 left-0 w-60 bg-gradient-to-r from-[#050505] to-transparent z-10 pointer-events-none" />
           <div className="absolute inset-y-0 right-0 w-60 bg-gradient-to-l from-[#050505] to-transparent z-10 pointer-events-none" />
 
-          <motion.div
-            drag={shouldReduceGfx ? false : "x"}
-            dragConstraints={{ left: -4000, right: 0 }}
-            animate={controls}
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={() => setIsDragging(false)}
-            onMouseEnter={() => setIsDragging(true)}
-            onMouseLeave={() => setIsDragging(false)}
-            className="flex gap-10 w-max px-4"
+          <div
+            className={`flex gap-10 w-max px-4 ${!shouldReduceGfx ? 'animate-marquee marquee-pause' : ''}`}
           >
             {duplicatedTestimonials.map((t: any, i: number) => (
               <motion.div
@@ -426,7 +396,7 @@ const Home = () => {
                           alt={t.name} 
                           fill
                           className="object-cover" 
-                          referrerPolicy="no-referrer" 
+                          unoptimized={!t.imageUrl?.startsWith('http') && !t.imageUrl?.startsWith('/uploads/')}
                           loading="lazy"
                         />
                       ) : (
@@ -450,7 +420,7 @@ const Home = () => {
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--c-1-start)]/20 to-transparent transform scale-x-0 group-hover/card:scale-x-100 transition-transform duration-700" />
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 

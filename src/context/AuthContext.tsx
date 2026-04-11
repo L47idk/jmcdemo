@@ -93,7 +93,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) {
       const userEmail = (user.email || "").toLowerCase();
       if (ADMIN_EMAILS.includes(userEmail)) {
-        console.log("AuthContext: User is in admin email list:", userEmail);
         setIsAdmin(true);
       } else {
         setIsAdmin(false);

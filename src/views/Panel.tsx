@@ -86,7 +86,7 @@ const Flashcard = ({ role, name, imageUrl, icon: Icon = User, onUpload, isAdmin 
             alt={name || 'Member'} 
             fill 
             className={`object-cover ${!shouldReduceGfx && 'transition-transform duration-700 group-hover:scale-110'}`}
-            referrerPolicy="no-referrer"
+            unoptimized={!imageUrl?.startsWith('http') && !imageUrl?.startsWith('/uploads/')}
             loading="lazy"
           />
         ) : (
@@ -386,7 +386,13 @@ const Panel = () => {
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden relative group/img">
                       {d.imageUrl ? (
-                        <Image src={resolveImageUrl(d.imageUrl)} alt={d.name || 'Dept Head'} fill className="object-cover" referrerPolicy="no-referrer" />
+                        <Image 
+                          src={resolveImageUrl(d.imageUrl)} 
+                          alt={d.name || 'Dept Head'} 
+                          fill 
+                          className="object-cover" 
+                          unoptimized={!d.imageUrl?.startsWith('http') && !d.imageUrl?.startsWith('/uploads/')}
+                        />
                       ) : (
                         <User className="w-4 h-4 text-zinc-500" />
                       )}
@@ -448,7 +454,13 @@ const Panel = () => {
                     <div key={i} className="flex items-center gap-4 p-3 bg-white/[0.03] rounded-xl border border-white/5 hover:bg-white/10 transition-all group/sec cursor-default">
                       <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden relative group/img shrink-0 border border-white/10">
                         {s.imageUrl ? (
-                          <Image src={resolveImageUrl(s.imageUrl)} alt={s.name || 'Secretary'} fill className="object-cover" referrerPolicy="no-referrer" />
+                          <Image 
+                            src={resolveImageUrl(s.imageUrl)} 
+                            alt={s.name || 'Secretary'} 
+                            fill 
+                            className="object-cover" 
+                            unoptimized={!s.imageUrl?.startsWith('http') && !s.imageUrl?.startsWith('/uploads/')}
+                          />
                         ) : (
                           <User className="w-5 h-5 text-zinc-500" />
                         )}

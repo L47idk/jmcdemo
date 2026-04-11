@@ -12,9 +12,9 @@ interface ContactModalProps {
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
   const { content } = useContent();
   const contact = content?.contact || {
-    email: 'hello@josephitemath.club',
-    phone: '+880 1712-345678',
-    location: "St. Joseph's Campus, Math Wing"
+    email: 'N/A',
+    phone: 'N/A',
+    location: "St. Joseph Higher Secondary School, Asad avenue, Dhaka-1207"
   };
 
   return (

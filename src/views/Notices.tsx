@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Bell, Calendar, Pin, ArrowRight, Search, Filter, Info, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, Calendar, Pin, ArrowRight, Search, Filter, Info, AlertTriangle, CheckCircle, Sparkles, Clock } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import ScrollReveal from '../components/ScrollReveal';
 import { Skeleton } from '../components/Skeleton';
@@ -135,62 +135,85 @@ const Notices = () => {
 
           {/* Notices Grid */}
           <div className="grid grid-cols-1 gap-8">
-            {filteredNotices.length > 0 ? (
-              filteredNotices.map((notice: any, i: number) => (
-                <ScrollReveal key={i} delay={shouldReduceGfx ? 0 : i * 0.05}>
-                  <div className={`group relative p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 ${!shouldReduceGfx && 'hover:border-[var(--c-6-start)]/30 transition-all duration-500'} overflow-hidden ${notice.isPinned ? 'border-[var(--c-6-start)]/20 bg-[var(--c-6-start)]/[0.02]' : ''}`}>
-                    {notice.isPinned && (
-                      <div className="absolute top-8 right-8">
-                        <Pin className="w-5 h-5 text-[var(--c-6-start)] fill-[var(--c-6-start)]" />
-                      </div>
-                    )}
-                    <div className="flex flex-col md:flex-row md:items-start gap-12 relative z-10">
-                      <div className={`flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-[var(--c-6-start)]/10 text-[var(--c-6-start)] border border-[var(--c-6-start)]/20 ${!shouldReduceGfx && 'group-hover:scale-105 transition-transform duration-500'}`}>
-                        <Calendar className="w-8 h-8 mb-2" />
-                        <div className="text-[10px] font-bold uppercase tracking-[0.2em]">{notice.date?.split(' ')[0]}</div>
-                      </div>
-                      <div className="flex-grow">
-                        <div className="flex items-center gap-4 mb-6">
-                          <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                            notice.tag === 'important' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                            notice.tag === 'urgent' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
-                            notice.tag === 'success' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                            'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                          }`}>
-                            {notice.tag || notice.type || 'General'}
-                          </span>
-                          <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{notice.date}</span>
+            <AnimatePresence mode="popLayout">
+              {filteredNotices.length > 0 ? (
+                filteredNotices.map((notice: any, i: number) => (
+                  <motion.div
+                    key={notice.id || i}
+                    layout
+                    initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, y: 20 }}
+                    animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                    exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, delay: shouldReduceGfx ? 0 : i * 0.05 }}
+                  >
+                    <div className={`group relative p-8 md:p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 ${!shouldReduceGfx && 'hover:border-[var(--c-6-start)]/30 hover:bg-white/[0.04] transition-all duration-500'} overflow-hidden ${notice.isPinned ? 'border-[var(--c-6-start)]/20 bg-[var(--c-6-start)]/[0.02]' : ''}`}>
+                      {notice.isPinned && (
+                        <div className="absolute top-8 right-8 flex items-center gap-2">
+                          <span className="text-[8px] font-bold text-[var(--c-6-start)] uppercase tracking-[0.2em]">Pinned Notice</span>
+                          <Pin className="w-4 h-4 text-[var(--c-6-start)] fill-[var(--c-6-start)]" />
                         </div>
-                        <h3 className="text-3xl md:text-4xl font-display font-bold mb-6 group-hover:text-[var(--c-6-start)] transition-colors leading-tight">{notice.title}</h3>
-                        <p className="text-xl text-zinc-500 leading-relaxed mb-10 whitespace-pre-line font-light">
-                          {notice.content}
-                        </p>
-                        {notice.link && (
-                          <a 
-                            href={notice.link} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-4 text-[var(--c-6-start)] font-bold uppercase tracking-widest text-xs hover:gap-6 transition-all duration-500"
-                          >
-                            {notice.linkText || 'View Details'} <ArrowRight className="w-5 h-5" />
-                          </a>
-                        )}
+                      )}
+                      <div className="flex flex-col md:flex-row md:items-start gap-8 md:gap-12 relative z-10">
+                        <div className={`flex-shrink-0 flex flex-col items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-[var(--c-6-start)]/10 text-[var(--c-6-start)] border border-[var(--c-6-start)]/20 ${!shouldReduceGfx && 'group-hover:scale-105 group-hover:bg-[var(--c-6-start)]/20 transition-all duration-500'}`}>
+                          <Calendar className="w-6 h-6 md:w-8 md:h-8 mb-1 md:mb-2" />
+                          <div className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em]">{notice.date?.split(' ')[0]}</div>
+                        </div>
+                        <div className="flex-grow">
+                          <div className="flex flex-wrap items-center gap-4 mb-6">
+                            <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border flex items-center gap-2 ${
+                              notice.tag === 'important' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                              notice.tag === 'urgent' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' :
+                              notice.tag === 'success' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                              'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                            }`}>
+                              {notice.tag === 'important' && <AlertTriangle className="w-3 h-3" />}
+                              {notice.tag === 'success' && <CheckCircle className="w-3 h-3" />}
+                              {notice.tag || notice.type || 'General'}
+                            </span>
+                            <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest flex items-center gap-2">
+                              <Clock className="w-3 h-3" />
+                              {notice.date}
+                            </span>
+                          </div>
+                          <h3 className="text-2xl md:text-4xl font-display font-bold mb-6 group-hover:text-[var(--c-6-start)] transition-colors leading-tight">{notice.title}</h3>
+                          <p className="text-lg md:text-xl text-zinc-500 leading-relaxed mb-10 whitespace-pre-line font-light">
+                            {notice.content}
+                          </p>
+                          {notice.link && (
+                            <a 
+                              href={notice.link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-4 text-[var(--c-6-start)] font-bold uppercase tracking-widest text-xs hover:gap-6 transition-all duration-500 group/link"
+                            >
+                              <span className="relative">
+                                {notice.linkText || 'View Details'}
+                                <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--c-6-start)] group-hover/link:w-full transition-all duration-500" />
+                              </span>
+                              <ArrowRight className="w-5 h-5 group-hover/link:translate-x-2 transition-transform" />
+                            </a>
+                          )}
+                        </div>
                       </div>
+                      {/* Subtle Background Accent */}
+                      {!shouldReduceGfx && (
+                        <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-[var(--c-6-start)]/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                      )}
                     </div>
-                    {/* Subtle Background Accent */}
-                    {!shouldReduceGfx && <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-[var(--c-6-start)]/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />}
-                  </div>
-                </ScrollReveal>
-              ))
-            ) : (
-              <ScrollReveal>
-                <div className="text-center py-40 rounded-[3rem] bg-white/[0.02] border border-dashed border-white/10">
+                  </motion.div>
+                ))
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-40 rounded-[3rem] bg-white/[0.02] border border-dashed border-white/10"
+                >
                   <Bell className="w-20 h-20 text-zinc-800 mx-auto mb-8 opacity-20" />
                   <h3 className="text-3xl font-display font-bold text-zinc-600 mb-4">No notices found</h3>
                   <p className="text-zinc-700 uppercase tracking-widest text-xs font-bold">Try adjusting your filters or search terms.</p>
-                </div>
-              </ScrollReveal>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

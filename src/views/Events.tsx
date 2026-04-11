@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, MapPin, Clock, ArrowRight, Filter, Search, Trophy, Users, BookOpen, Sparkles } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import ScrollReveal from '../components/ScrollReveal';
@@ -141,80 +141,100 @@ const Events = () => {
           </div>
 
           {/* Events Grid */}
-          {filteredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {filteredEvents.map((event: any, i: number) => (
-                <ScrollReveal key={i} delay={shouldReduceGfx ? 0 : i * 0.1}>
-                  <div className="group relative h-full">
-                    {!shouldReduceGfx && <div className="absolute -inset-2 bg-gradient-to-br from-[var(--c-6-start)]/10 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-700" />}
-                    <div className="relative glass-card h-full flex flex-col">
-                      <div className="relative aspect-[16/10] overflow-hidden">
-                        <Image 
-                          src={resolveImageUrl(event.imageUrl) || `https://picsum.photos/seed/event-${i}/800/600`} 
-                          alt={event.title} 
-                          fill
-                          className={`w-full h-full object-cover ${!shouldReduceGfx && 'group-hover:scale-110 transition-transform duration-1000'} opacity-60 group-hover:opacity-100`}
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute top-6 left-6 flex flex-col gap-2">
-                          <div className="px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[10px] font-bold uppercase tracking-widest text-[var(--c-6-start)]">
-                            {event.category || 'Event'}
-                          </div>
-                          {event.tag && (
-                            <div className={`px-4 py-1.5 rounded-full text-[8px] font-bold uppercase tracking-widest border self-start ${
-                              event.tag === 'important' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                              event.tag === 'urgent' ? 'bg-orange-500/20 text-orange-500 border-orange-500/30' :
-                              event.tag === 'success' ? 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30' :
-                              'bg-blue-500/20 text-blue-500 border-blue-500/30'
-                            }`}>
-                              {event.tag}
+          <AnimatePresence mode="popLayout">
+            {filteredEvents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {filteredEvents.map((event: any, i: number) => {
+                  // Simple logic to determine event status (can be improved with real date parsing)
+                  const isPast = event.date?.toLowerCase().includes('2023') || event.date?.toLowerCase().includes('2024');
+                  const isLive = event.tag?.toLowerCase() === 'live' || event.category?.toLowerCase() === 'live';
+                  
+                  return (
+                    <motion.div
+                      key={event.id || i}
+                      layout
+                      initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, y: 20 }}
+                      animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                      exit={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.5, delay: shouldReduceGfx ? 0 : i * 0.1 }}
+                      className="group relative h-full"
+                    >
+                      {!shouldReduceGfx && <div className="absolute -inset-2 bg-gradient-to-br from-[var(--c-6-start)]/10 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-700" />}
+                      <div className={`relative glass-card h-full flex flex-col overflow-hidden ${!shouldReduceGfx && 'hover:bg-white/[0.04] transition-all duration-500'}`}>
+                        <div className="relative aspect-[16/10] overflow-hidden">
+                          <Image 
+                            src={resolveImageUrl(event.imageUrl) || `https://picsum.photos/seed/event-${i}/800/600`} 
+                            alt={event.title} 
+                            fill
+                            className={`w-full h-full object-cover ${!shouldReduceGfx && 'group-hover:scale-110 transition-transform duration-1000'} opacity-60 group-hover:opacity-100`}
+                            unoptimized={!event.imageUrl?.startsWith('http') && !event.imageUrl?.startsWith('/uploads/')}
+                          />
+                          <div className="absolute top-6 left-6 flex flex-col gap-2">
+                            <div className="px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[10px] font-bold uppercase tracking-widest text-[var(--c-6-start)]">
+                              {event.category || 'Event'}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="p-10 flex-grow flex flex-col">
-                        <h3 className="text-3xl font-display font-bold mb-6 group-hover:text-[var(--c-6-start)] transition-colors leading-tight">{event.title}</h3>
-                        <p className="text-zinc-500 leading-relaxed mb-10 flex-grow font-light">
-                          {event.description}
-                        </p>
-                        <div className="space-y-4 mb-10">
-                          <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-zinc-600">
-                            <Calendar className="w-4 h-4 text-[var(--c-6-start)]" />
-                            {event.date}
-                          </div>
-                          <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-zinc-600">
-                            <Clock className="w-4 h-4 text-[var(--c-6-start)]" />
-                            {event.time}
-                          </div>
-                          <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-zinc-600">
-                            <MapPin className="w-4 h-4 text-[var(--c-6-start)]" />
-                            {event.location}
+                            {isLive ? (
+                              <div className="px-4 py-1.5 rounded-full bg-red-500 text-white text-[8px] font-bold uppercase tracking-widest flex items-center gap-2 animate-pulse">
+                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                                Live Now
+                              </div>
+                            ) : isPast ? (
+                              <div className="px-4 py-1.5 rounded-full bg-zinc-800 text-zinc-500 text-[8px] font-bold uppercase tracking-widest border border-white/5">
+                                Past Event
+                              </div>
+                            ) : (
+                              <div className="px-4 py-1.5 rounded-full bg-[var(--c-6-start)]/20 text-[var(--c-6-start)] text-[8px] font-bold uppercase tracking-widest border border-[var(--c-6-start)]/30">
+                                Upcoming
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <a 
-                          href={event.registrationLink || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full py-5 btn-metallic-blue flex items-center justify-center gap-3 group/btn"
-                        >
-                          {event.buttonText || 'Register Now'}
-                          <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-2 transition-transform" />
-                        </a>
+                        <div className="p-8 lg:p-10 flex-grow flex flex-col">
+                          <h3 className="text-2xl md:text-3xl font-display font-bold mb-6 group-hover:text-[var(--c-6-start)] transition-colors leading-tight">{event.title}</h3>
+                          <p className="text-zinc-500 leading-relaxed mb-10 flex-grow font-light text-sm md:text-base">
+                            {event.description}
+                          </p>
+                          <div className="space-y-4 mb-10 p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+                            <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                              <Calendar className="w-4 h-4 text-[var(--c-6-start)]" />
+                              {event.date}
+                            </div>
+                            <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                              <Clock className="w-4 h-4 text-[var(--c-6-start)]" />
+                              {event.time}
+                            </div>
+                            <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                              <MapPin className="w-4 h-4 text-[var(--c-6-start)]" />
+                              {event.location}
+                            </div>
+                          </div>
+                          <a 
+                            href={event.registrationLink || '#'}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`w-full btn-premium-glow group/btn ${isPast ? 'opacity-50 grayscale pointer-events-none' : ''}`}
+                          >
+                            {isPast ? 'Event Ended' : (event.buttonText || 'Register Now')}
+                            {!isPast && <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-2 transition-transform" />}
+                          </a>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          ) : (
-            <ScrollReveal>
-              <div className="text-center py-40 rounded-[3rem] bg-white/[0.02] border border-dashed border-white/10">
+                    </motion.div>
+                  );
+                })}
+              </div>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-40 rounded-[3rem] bg-white/[0.02] border border-dashed border-white/10"
+              >
                 <Calendar className="w-20 h-20 text-zinc-800 mx-auto mb-8 opacity-20" />
                 <h3 className="text-3xl font-display font-bold text-zinc-600 mb-4">No events found</h3>
                 <p className="text-zinc-700 uppercase tracking-widest text-xs font-bold">Try adjusting your filters or search terms.</p>
-              </div>
-            </ScrollReveal>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

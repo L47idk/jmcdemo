@@ -390,9 +390,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
       
       if (error) throw error;
-      console.log("Database seeded successfully");
     } catch (err) {
-      console.error("Error seeding database:", err);
       throw err;
     }
   };

@@ -68,7 +68,7 @@ const Navbar = () => {
                   alt="JMC Logo" 
                   fill
                   className="object-contain"
-                  referrerPolicy="no-referrer"
+                  unoptimized={!logoUrl?.startsWith('http') && !logoUrl?.startsWith('/uploads/')}
                   fetchPriority="high"
                 />
               </div>
@@ -120,7 +120,7 @@ const Navbar = () => {
               <motion.div whileTap={shouldReduceGfx ? {} : { scale: 0.95 }}>
                 <Link
                   href="/login"
-                  className="inline-flex items-center btn-metallic-blue"
+                  className="btn-premium-glow !px-6 !py-2 !text-[8px]"
                 >
                   Login
                 </Link>

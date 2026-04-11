@@ -34,7 +34,7 @@ class Formula {
   width: number;
   height: number;
 
-  constructor(width: number, height: number) {
+  constructor(width: number, height: number, ctx: CanvasRenderingContext2D, fontFamily: string) {
     this.text = formulas[Math.floor(Math.random() * formulas.length)];
     this.x = Math.random() * width;
     this.y = Math.random() * height;
@@ -47,38 +47,34 @@ class Formula {
     this.timer = 0;
     this.width = 0;
     this.height = 0;
+    this.calculateBounds(ctx, fontFamily);
   }
 
   calculateBounds(ctx: CanvasRenderingContext2D, fontFamily: string) {
     ctx.font = `${this.fontSize}px ${fontFamily}`;
-    const metrics = ctx.measureText(this.text);
-    this.width = metrics.width;
+    this.width = ctx.measureText(this.text).width;
     this.height = this.fontSize;
   }
 
   checkOverlap(others: Formula[]) {
     const margin = 30;
+    const thisLeft = this.x;
+    const thisRight = this.x + this.width;
+    const thisTop = this.y - this.height;
+    const thisBottom = this.y;
+
     for (const other of others) {
       if (other === this || other.state === 'hidden') continue;
       
-      const thisRect = {
-        left: this.x,
-        right: this.x + this.width,
-        top: this.y - this.height,
-        bottom: this.y
-      };
-      
-      const otherRect = {
-        left: other.x - margin,
-        right: other.x + other.width + margin,
-        top: other.y - other.height - margin,
-        bottom: other.y + margin
-      };
+      const otherLeft = other.x - margin;
+      const otherRight = other.x + other.width + margin;
+      const otherTop = other.y - other.height - margin;
+      const otherBottom = other.y + margin;
 
-      if (!(thisRect.left > otherRect.right || 
-            thisRect.right < otherRect.left || 
-            thisRect.top > otherRect.bottom || 
-            thisRect.bottom < otherRect.top)) {
+      if (!(thisLeft > otherRight || 
+            thisRight < otherLeft || 
+            thisTop > otherBottom || 
+            thisBottom < otherTop)) {
         return true;
       }
     }
@@ -87,14 +83,13 @@ class Formula {
 
   update(width: number, height: number, others: Formula[], ctx: CanvasRenderingContext2D, fontFamily: string) {
     if (this.state === 'hidden') {
-      if (Math.random() < 0.01) { // Balanced spawn rate for faster fading
-        for (let attempt = 0; attempt < 50; attempt++) {
+      if (Math.random() < 0.005) { // Reduced spawn rate check frequency
+        for (let attempt = 0; attempt < 20; attempt++) { // Reduced attempts
           this.x = Math.random() * (width - this.width - 100) + 50;
           this.y = Math.random() * (height - 150) + 100;
-          this.calculateBounds(ctx, fontFamily);
           if (!this.checkOverlap(others)) {
             this.state = 'fading-in';
-            this.targetOpacity = 0.2 + Math.random() * 0.2; // More visible
+            this.targetOpacity = 0.2 + Math.random() * 0.2;
             break;
           }
         }
@@ -117,6 +112,7 @@ class Formula {
         this.opacity = 0;
         this.state = 'hidden';
         this.text = formulas[Math.floor(Math.random() * formulas.length)];
+        this.calculateBounds(ctx, fontFamily);
       }
     }
   }
@@ -131,28 +127,32 @@ class Formula {
     ctx.fillStyle = '#F59E0B'; // Amber-500
     ctx.font = `${this.fontSize}px ${fontFamily}`;
     
-    // Add stronger glow effect
-    ctx.shadowBlur = 25;
-    ctx.shadowColor = 'rgba(245, 158, 11, 0.5)';
+    // Removed expensive shadowBlur for performance
     
     ctx.fillText(this.text, 0, 0);
     ctx.restore();
   }
 }
 
-const BackgroundFormulas = () => {
+interface BackgroundFormulasProps {
+  reduced?: boolean;
+}
+
+const BackgroundFormulas: React.FC<BackgroundFormulasProps> = ({ reduced = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     let animationFrameId: number;
     let formulaObjects: Formula[] = [];
     let cachedFontFamily = 'Caveat, cursive';
+    let lastTime = 0;
+    const isMobile = reduced || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     const updateFont = () => {
       cachedFontFamily = getComputedStyle(document.body).getPropertyValue('--font-handwritten') || 'Caveat, cursive';
@@ -165,8 +165,9 @@ const BackgroundFormulas = () => {
       ctx.scale(dpr, dpr);
       updateFont();
       
-      // Create a pool of formulas
-      formulaObjects = Array.from({ length: 12 }).map(() => new Formula(window.innerWidth, window.innerHeight));
+      // Create a pool of formulas - reduced count on mobile
+      const count = isMobile ? 6 : 12;
+      formulaObjects = Array.from({ length: count }).map(() => new Formula(window.innerWidth, window.innerHeight, ctx, cachedFontFamily));
     };
 
     const handleResize = () => {
@@ -180,30 +181,36 @@ const BackgroundFormulas = () => {
       formulaObjects.forEach(f => {
         f.x = Math.random() * window.innerWidth;
         f.y = Math.random() * window.innerHeight;
+        f.calculateBounds(ctx, cachedFontFamily);
       });
     };
 
     window.addEventListener('resize', handleResize);
     init();
 
-    const animate = () => {
+    const animate = (currentTime: number) => {
+      animationFrameId = requestAnimationFrame(animate);
+      
+      // Throttle to ~30fps for background elements
+      const deltaTime = currentTime - lastTime;
+      if (deltaTime < 32) return; 
+      lastTime = currentTime;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       formulaObjects.forEach(f => {
         f.update(window.innerWidth, window.innerHeight, formulaObjects, ctx, cachedFontFamily);
         f.draw(ctx, cachedFontFamily);
       });
-
-      animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [reduced]);
 
   return (
     <canvas

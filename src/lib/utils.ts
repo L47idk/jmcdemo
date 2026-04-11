@@ -27,5 +27,7 @@ export function resolveImageUrl(url: string | undefined): string {
     }
   }
   
+  // For local images, we return the path as is. 
+  // Next.js will serve these from the public folder.
   return url;
 }

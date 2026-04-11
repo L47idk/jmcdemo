@@ -1,7 +1,11 @@
 "use client";
 import React, { useEffect, useRef } from 'react';
 
-const StarField = () => {
+interface StarFieldProps {
+  reduced?: boolean;
+}
+
+const StarField: React.FC<StarFieldProps> = ({ reduced = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -13,7 +17,9 @@ const StarField = () => {
 
     let animationFrameId: number;
     let particles: Particle[] = [];
+    let lastTime = 0;
     const mouse = { x: -1000, y: -1000 };
+    const isMobile = reduced || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     class Particle {
       x: number;
@@ -159,14 +165,15 @@ const StarField = () => {
 
     const init = () => {
       particles = [];
-      const numberOfParticles = (canvas.width * canvas.height) / 15000;
+      const divisor = isMobile ? 40000 : 25000; // Increased divisor = fewer particles
+      const numberOfParticles = (canvas.width * canvas.height) / divisor;
       for (let i = 0; i < numberOfParticles; i++) {
         let x = Math.random() * canvas.width;
         let y = Math.random() * canvas.height;
         particles.push(new Particle(x, y));
       }
       
-      comets = Array.from({ length: 3 }).map(() => new Comet(canvas.width, canvas.height));
+      comets = Array.from({ length: isMobile ? 1 : 2 }).map(() => new Comet(canvas.width, canvas.height));
     };
 
     const handleResize = () => {
@@ -184,7 +191,14 @@ const StarField = () => {
     window.addEventListener('mousemove', handleMouseMove);
     handleResize();
 
-    const animate = () => {
+    const animate = (currentTime: number) => {
+      animationFrameId = requestAnimationFrame(animate);
+      
+      // Throttle to ~30fps
+      const deltaTime = currentTime - lastTime;
+      if (deltaTime < 32) return; 
+      lastTime = currentTime;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < particles.length; i++) {
         particles[i].draw();
@@ -194,17 +208,16 @@ const StarField = () => {
         comets[i].update(canvas.width, canvas.height);
         comets[i].draw();
       }
-      animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [reduced]);
 
   return (
     <canvas

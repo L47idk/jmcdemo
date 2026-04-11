@@ -37,17 +37,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         >
           {/* Atmospheric Background */}
           <div className="fixed inset-0 pointer-events-none -z-30">
-            <div className="noise absolute inset-0 opacity-[0.01]" />
+            {!shouldReduceGfx && <div className="noise absolute inset-0 opacity-[0.01]" />}
             <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-indigo-500/5" />
           </div>
 
-          {!shouldReduceGfx && (
-            <>
-              <StarField />
-              <MathVisualizations />
-              <BackgroundFormulas />
-            </>
-          )}
+          {/* Background Effects - Always rendered but optimized */}
+          <StarField reduced={shouldReduceGfx} />
+          <MathVisualizations reduced={shouldReduceGfx} />
+          <BackgroundFormulas reduced={shouldReduceGfx} />
           
           <Navbar />
           <FloatingSidebar />

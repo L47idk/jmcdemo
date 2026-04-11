@@ -29,7 +29,7 @@ export const DashboardSection: React.FC<DashboardSectionProps> = ({
     <motion.section 
       initial={shouldReduceGfx ? { opacity: 0 } : { opacity: 0, y: 20 }}
       animate={shouldReduceGfx ? { opacity: 1 } : { opacity: 1, y: 0 }}
-      className="glass-card p-10 border-white/5 relative overflow-hidden group/section"
+      className="glass-card p-6 lg:p-10 border-white/5 relative overflow-hidden group/section"
     >
       {/* Background Glow */}
       {!shouldReduceGfx && (

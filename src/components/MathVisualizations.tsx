@@ -1,7 +1,11 @@
 "use client";
 import React, { useEffect, useRef } from 'react';
 
-const MathVisualizations = () => {
+interface MathVisualizationsProps {
+  reduced?: boolean;
+}
+
+const MathVisualizations: React.FC<MathVisualizationsProps> = ({ reduced = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -13,54 +17,69 @@ const MathVisualizations = () => {
 
     let animationFrameId: number;
     let time = 0;
+    let lastTime = 0;
+    const isMobile = reduced || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     // Lorenz Attractor variables
     let x = 0.1, y = 0, z = 0;
     const a = 10, b = 28, c = 8 / 3;
     const dt = 0.01;
     const points: { x: number, y: number, z: number }[] = [];
-    const maxPoints = 500;
+    const maxPoints = isMobile ? 100 : 300; // Reduced points
+
+    // Offscreen canvas for grid caching
+    const gridCanvas = document.createElement('canvas');
+    const gridCtx = gridCanvas.getContext('2d');
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       ctx.scale(dpr, dpr);
+
+      // Update grid cache
+      gridCanvas.width = canvas.width;
+      gridCanvas.height = canvas.height;
+      if (gridCtx) {
+        gridCtx.scale(dpr, dpr);
+        renderGridToCache(gridCtx);
+      }
+    };
+
+    const renderGridToCache = (gCtx: CanvasRenderingContext2D) => {
+      const step = 50;
+      gCtx.strokeStyle = 'rgba(245, 158, 11, 0.03)';
+      gCtx.lineWidth = 1;
+
+      for (let i = 0; i < window.innerWidth; i += step) {
+        gCtx.beginPath();
+        gCtx.moveTo(i, 0);
+        gCtx.lineTo(i, window.innerHeight);
+        gCtx.stroke();
+      }
+
+      for (let i = 0; i < window.innerHeight; i += step) {
+        gCtx.beginPath();
+        gCtx.moveTo(0, i);
+        gCtx.lineTo(window.innerWidth, i);
+        gCtx.stroke();
+      }
+
+      gCtx.fillStyle = 'rgba(245, 158, 11, 0.05)';
+      for (let i = 0; i < window.innerWidth; i += step * 5) {
+        for (let j = 0; j < window.innerHeight; j += step * 5) {
+          gCtx.beginPath();
+          gCtx.arc(i, j, 2, 0, Math.PI * 2);
+          gCtx.fill();
+        }
+      }
     };
 
     window.addEventListener('resize', resize);
     resize();
 
     const drawGrid = () => {
-      const step = 50;
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.03)'; // Very subtle amber
-      ctx.lineWidth = 1;
-
-      // Vertical lines
-      for (let i = 0; i < canvas.width; i += step) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, canvas.height);
-        ctx.stroke();
-      }
-
-      // Horizontal lines
-      for (let i = 0; i < canvas.height; i += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(canvas.width, i);
-        ctx.stroke();
-      }
-
-      // Origin indicators
-      ctx.fillStyle = 'rgba(245, 158, 11, 0.05)';
-      for (let i = 0; i < canvas.width; i += step * 5) {
-        for (let j = 0; j < canvas.height; j += step * 5) {
-          ctx.beginPath();
-          ctx.arc(i, j, 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
+      ctx.drawImage(gridCanvas, 0, 0, window.innerWidth, window.innerHeight);
     };
 
     const updateLorenz = () => {
@@ -81,9 +100,8 @@ const MathVisualizations = () => {
       if (points.length < 2) return;
 
       ctx.save();
-      // Position it in a corner or center subtly
-      ctx.translate(canvas.width * 0.8, canvas.height * 0.7);
-      ctx.scale(7, 7);
+      ctx.translate(window.innerWidth * 0.8, window.innerHeight * 0.7);
+      ctx.scale(isMobile ? 5 : 7, isMobile ? 5 : 7);
       ctx.rotate(time * 0.1);
 
       ctx.beginPath();
@@ -101,8 +119,9 @@ const MathVisualizations = () => {
     };
 
     const drawFibonacci = () => {
+      if (isMobile) return; // Skip on mobile for performance
       ctx.save();
-      ctx.translate(canvas.width * 0.2, canvas.height * 0.3);
+      ctx.translate(window.innerWidth * 0.2, window.innerHeight * 0.3);
       ctx.rotate(time * 0.05);
       
       let a = 0, b = 1, temp;
@@ -121,7 +140,6 @@ const MathVisualizations = () => {
         a = b;
         b = temp + b;
         
-        // Move to next center
         const move = a * scale;
         ctx.translate(move, 0);
         ctx.rotate(Math.PI / 2);
@@ -137,12 +155,13 @@ const MathVisualizations = () => {
       ctx.strokeStyle = 'rgba(245, 158, 11, 0.05)';
       ctx.lineWidth = 1;
       
-      const amplitude = 20;
+      const amplitude = isMobile ? 10 : 20;
       const frequency = 0.01;
-      const centerY = canvas.height * 0.9;
+      const centerY = window.innerHeight * 0.9;
+      const step = isMobile ? 8 : 4; // Skip pixels for performance
       
       ctx.moveTo(0, centerY);
-      for (let x = 0; x < canvas.width; x++) {
+      for (let x = 0; x < window.innerWidth; x += step) {
         const y = centerY + Math.sin(x * frequency + time) * amplitude;
         ctx.lineTo(x, y);
       }
@@ -152,33 +171,41 @@ const MathVisualizations = () => {
 
     const drawGeometricPulse = () => {
       ctx.save();
-      ctx.translate(canvas.width * 0.5, canvas.height * 0.5);
+      ctx.translate(window.innerWidth * 0.5, window.innerHeight * 0.5);
       
-      const radius = (Math.sin(time * 0.5) + 1) * 100 + 50;
+      const radius = (Math.sin(time * 0.5) + 1) * (isMobile ? 50 : 100) + 50;
       const opacity = (Math.cos(time * 0.5) + 1) * 0.02;
       
       ctx.beginPath();
       ctx.strokeStyle = `rgba(245, 158, 11, ${opacity})`;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1.5;
       ctx.arc(0, 0, radius, 0, Math.PI * 2);
       ctx.stroke();
       
-      // Inner hexagon
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const angle = (i * Math.PI * 2) / 6 + time * 0.2;
-        const hx = Math.cos(angle) * (radius * 0.8);
-        const hy = Math.sin(angle) * (radius * 0.8);
-        if (i === 0) ctx.moveTo(hx, hy);
-        else ctx.lineTo(hx, hy);
+      if (!isMobile) {
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const angle = (i * Math.PI * 2) / 6 + time * 0.2;
+          const hx = Math.cos(angle) * (radius * 0.8);
+          const hy = Math.sin(angle) * (radius * 0.8);
+          if (i === 0) ctx.moveTo(hx, hy);
+          else ctx.lineTo(hx, hy);
+        }
+        ctx.closePath();
+        ctx.stroke();
       }
-      ctx.closePath();
-      ctx.stroke();
       
       ctx.restore();
     };
 
-    const animate = () => {
+    const animate = (currentTime: number) => {
+      animationFrameId = requestAnimationFrame(animate);
+      
+      // Throttle to ~30fps
+      const deltaTime = currentTime - lastTime;
+      if (deltaTime < 32) return; 
+      lastTime = currentTime;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       time += 0.01;
@@ -189,17 +216,15 @@ const MathVisualizations = () => {
       drawFibonacci();
       drawSineWave();
       drawGeometricPulse();
-
-      animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [reduced]);
 
   return (
     <canvas

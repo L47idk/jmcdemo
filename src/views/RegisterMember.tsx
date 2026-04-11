@@ -713,7 +713,13 @@ const FormSection = ({ type, data, isStudentCopy = false, declaration, logoUrl }
       <div className="flex justify-between items-start border-b-2 border-black pb-4">
         <div className="w-20 h-20 relative flex items-center justify-center border border-black/10">
           {logoUrl ? (
-            <Image src={resolveImageUrl(logoUrl)} alt="JMC" fill className="object-contain" referrerPolicy="no-referrer" />
+            <Image 
+              src={resolveImageUrl(logoUrl)} 
+              alt="JMC" 
+              fill 
+              className="object-contain" 
+              unoptimized={!logoUrl?.startsWith('http') && !logoUrl?.startsWith('/uploads/')}
+            />
           ) : (
             <span className="text-[10px] font-bold">JMC LOGO</span>
           )}
@@ -741,7 +747,13 @@ const FormSection = ({ type, data, isStudentCopy = false, declaration, logoUrl }
       <div className="flex justify-end">
         <div className="w-24 h-28 border-2 border-black flex items-center justify-center text-[10px] font-bold relative">
           {data.photoUrl ? (
-            <Image src={resolveImageUrl(data.photoUrl)} alt="Photo" fill className="object-cover" referrerPolicy="no-referrer" />
+            <Image 
+              src={resolveImageUrl(data.photoUrl)} 
+              alt="Photo" 
+              fill 
+              className="object-cover" 
+              unoptimized={!data.photoUrl?.startsWith('http') && !data.photoUrl?.startsWith('/uploads/')}
+            />
           ) : (
             'PHOTO'
           )}

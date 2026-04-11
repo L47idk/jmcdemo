@@ -17,9 +17,10 @@ export function usePerformance() {
     // Aggressive heuristic for low-end device
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isLowEnd = 
-      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
-      ((navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4) ||
-      isMobileDevice;
+      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) || // Reverted to 4 cores
+      ((navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4) || // Reverted to 4GB
+      isMobileDevice ||
+      (window.innerWidth < 768); // Reverted to standard mobile width
 
     setIsLowPower(isLowEnd);
     setIsMobile(isMobileDevice);
